@@ -1,0 +1,15 @@
+.home,
+.home_layout,
+.home_content,
+.home_content > div {
+    height: 100%;
+}
+
+.home_header {
+    padding: 0;
+}
+
+.home_content > div {
+    overflow: hidden;
+    background-color: #fff;
+}

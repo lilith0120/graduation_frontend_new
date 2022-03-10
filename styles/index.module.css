@@ -1,0 +1,95 @@
+.login {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 80%;
+    display: flex;
+    align-items: center;
+    padding: 0 10%;
+    border-right: 5px #797979 solid;
+}
+
+.content {
+    height: 70%;
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 2%;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header:before,
+.header:after {
+    content: "";
+    display: inline-block;
+    color: #ddd;
+    width: 100px;
+    border-top: 2px solid #ddd;
+    vertical-align: middle;
+}
+
+.header_content {
+    margin: 0 10%;
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    color: #666;
+}
+
+.login_btn {
+    margin-top: 20%;
+}
+
+.login_btn_content {
+    width: 400px;
+    height: 60px;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.login_form {
+    margin-top: 8%;
+}
+
+.login_form_content {
+    width: 400px;
+}
+
+.forget_pswd {
+    float: right;
+}
+
+.login_form_btn {
+    width: 100%;
+}
+
+.footer {
+    margin-top: 4%;
+    width: 400px;
+    font-size: 12px;
+}
+
+.footer_title {
+    font-weight: bold;
+    margin-right: 2%;
+}
+
+.footer_email {
+    font-weight: bold;
+    color: #1890ff;
+}
+
+.footer_email:hover {
+    cursor: pointer;
+}

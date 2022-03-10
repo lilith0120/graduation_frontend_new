@@ -1,0 +1,10 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 3%;
+}
+
+.content {
+    margin: 2% 0;
+}

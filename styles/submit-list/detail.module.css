@@ -1,0 +1,25 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin: 2% 2% 0 2%;
+}
+
+.file_header {
+    display: flex;
+    align-items: center;
+    margin: 1% 6% 0;
+}
+
+.file_name {
+    margin-right: 1%;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.content {
+    margin-left: 3%;
+}
+
+.file_message {
+    margin: 0 6%;
+}

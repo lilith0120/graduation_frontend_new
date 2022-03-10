@@ -1,0 +1,30 @@
+.header {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    width: 250px;
+    display: flex;
+    margin-left: 1.5%;
+}
+
+.logo > img {
+    width: 100%;
+}
+
+.user_msg {
+    margin-right: 1%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fff;
+    font-weight: bold;
+    width: 77px;
+}
+
+.user_msg > div:nth-last-child(1):hover {
+    cursor: pointer;
+}

@@ -1,0 +1,27 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 3%;
+}
+
+.content {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 4%;
+    height: 550px;
+}
+
+.description {
+    width: 50%;
+    margin-right: 4%;
+}
+
+.file_viewer {
+    width: 50%;
+}
+
+.file {
+    width: 100%;
+    height: 100%;
+}

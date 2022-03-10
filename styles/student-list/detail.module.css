@@ -1,0 +1,14 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 3%;
+}
+
+.content {
+    margin: 3% 0;
+}
+
+.file_message {
+    margin: 0 8%;
+}
