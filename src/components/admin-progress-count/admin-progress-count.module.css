@@ -1,0 +1,14 @@
+.echarts {
+    height: 80%;
+}
+
+.select {
+    margin-right: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.pie {
+    height: 100% !important;
+}

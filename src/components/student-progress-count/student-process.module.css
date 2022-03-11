@@ -1,0 +1,37 @@
+.step_content {
+    margin: 2% 6%;
+    overflow-x: auto;
+}
+
+.item .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
+    padding-left: 30px;
+}
+
+.item > div {
+    margin-left: 30px !important;
+    margin-bottom: 10px;
+    width: 200px;
+}
+
+.content {
+    margin: 0 6%;
+}
+
+.step_content::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    height: 10px;
+}
+
+.step_content::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background   : #002766;
+}
+
+.step_content::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background   : #ededed;
+}

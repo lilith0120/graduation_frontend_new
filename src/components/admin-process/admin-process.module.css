@@ -1,0 +1,48 @@
+.main {
+    margin: 2% 14%;
+}
+
+.main :global .ant-tree-switcher-noop {
+    display: none;
+}
+
+.main :global .ant-tree-list-holder-inner {
+    font-size: 20px;
+}
+
+.main :global .ant-tree-treenode {
+    margin: 10px 0;
+}
+
+.main :global .ant-tree-treenode:hover {
+    cursor: pointer;
+}
+
+.header_btn {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1%;
+}
+
+.tree_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+}
+
+.tree_content {
+    display: flex;
+    align-items: center;
+    width: 50%;
+}
+
+.tree_title {
+    margin-left: 1%;
+}
+
+.tree_btn {
+    width: 10%;
+    display: flex;
+    justify-content: space-around;
+}

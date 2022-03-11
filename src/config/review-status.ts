@@ -1,4 +1,4 @@
-const reviewStatus = {
+const reviewStatus: { [index: string]: number } = {
     "未审核": 0,
     "审核中": 1,
     "审核通过": 2,

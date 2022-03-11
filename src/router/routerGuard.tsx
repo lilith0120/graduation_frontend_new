@@ -1,4 +1,4 @@
-import { useNavigate, useLocation, useRoutes } from 'react-router-dom';
+import { useLocation, useRoutes, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
 let temp: any = null;
@@ -13,7 +13,9 @@ const RouterGuard = ({ routers, routerAuth }: any) => {
 const transformRouters = (routers = [], routerAuth: any) => {
     const routersList: any[] = [];
     routers.forEach((r: any) => {
-        const router: any = {};
+        const router: any = {
+            path: r.path,
+        };
         if (!r.path) {
             return;
         }
@@ -23,7 +25,6 @@ const transformRouters = (routers = [], routerAuth: any) => {
         }
 
         if (r.children) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             router.children = transformRouters(r.children, routerAuth);
         }
 
@@ -35,16 +36,17 @@ const transformRouters = (routers = [], routerAuth: any) => {
 
 const LoginGuard = ({ element, meta = {}, routerAuth }: any) => {
     const { pathname } = useLocation();
-    const navigate = useNavigate();
 
     if (routerAuth) {
         if (temp === element) {
             return element;
         }
 
-        const loginRouter = routerAuth(meta);
-        if (loginRouter && loginRouter !== pathname) {
-            navigate(loginRouter, { replace: true });
+        const isLogin = routerAuth(meta);
+        if (!isLogin && pathname !== "/login") {
+            element = <Navigate to="/login" replace />
+        } else if ((pathname === "/" || pathname === "/login") && isLogin) {
+            element = <Navigate to="/progress-count" replace />
         }
     }
 
@@ -52,19 +54,15 @@ const LoginGuard = ({ element, meta = {}, routerAuth }: any) => {
     return element;
 };
 
-const lazyLoad = (component: any, meta = {}, routerAuth: any) => {
-    const loading = `<div>loading</div>`;
+const lazyLoad = (component: any, meta: any, routerAuth: any) => {
+    const loading = <div></div>;
     const Element = lazy(component);
-    const LazyElement =
-        `<${Suspense} fallback= { ${loading} } >
-            <${Element} _meta={ ${meta} }/>
-        </${Suspense}>`;
+    const LazyElement = <Suspense fallback={loading} ><Element _meta={meta} /></Suspense>;
 
-    return `<${LoginGuard}
-                element={ ${LazyElement} }
-                meta={ ${meta} }
-                routerAuth={ ${routerAuth} }
-             />`;
+    return <LoginGuard
+        element={LazyElement}
+        meta={meta}
+        routerAuth={routerAuth} />;
 };
 
 export default RouterGuard;

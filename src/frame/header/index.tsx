@@ -8,7 +8,7 @@ import style from './header.module.css';
 const Header = () => {
     const navigate = useNavigate();
     const [userName, setUserName] = useState("用户");
-    const [userAvatar, setUserAvatar] = useState("");
+    const [userAvatar, setUserAvatar] = useState("https://joeschmoe.io/api/v1/random");
 
     useEffect(() => {
         const name = localStorage.getItem("name");
@@ -24,7 +24,7 @@ const Header = () => {
 
     const handleClickLogout = () => {
         localStorage.clear();
-        navigate("/", { replace: true });
+        navigate("/login", { replace: true });
     };
 
     return (

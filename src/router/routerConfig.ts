@@ -1,118 +1,149 @@
-
+const Login = () => import('../pages/login');
+const ProgressCount = () => import('../pages/progress-count');
+const SubmitList = () => import('../pages/submit-list/index');
+const SubmitListDetail = () => import('../pages/submit-list/detail/[id]');
+const SubmitListEdit = () => import('../pages/submit-list/edit/[id]');
+const BasicMessage = () => import('../pages/basic-message/index');
+const StudentList = () => import('../pages/student-list/index');
+const StudentListDetail = () => import('../pages/student-list/detail/[id]');
+const StudentListEdit = () => import('../pages/student-list/edit/[id]');
+const StudentListStageDetail = () => import('../pages/student-list/stage-detail/[id]');
+const Process = () => import('../pages/process/index');
+const ReviewList = () => import('../pages/review-list/index');
+const ReviewListDetail = () => import('../pages/review-list/detail/[id]');
+const TeacherList = () => import('../pages/teacher-list/index');
+const TeacherListDetail = () => import('../pages/teacher-list/detail/[id]');
+const TeacherListEdit = () => import('../pages/teacher-list/edit/[id]');
 
 const routers = [
     {
         path: "/login",
-        // component: LoginTest,
-        auth: false
+        component: Login,
+        meta: {
+            isAuth: false,
+            title: "登录",
+        },
     },
-    // {
-    //     path: "/login",
-    //     component: Login,
-    //     auth: false
-    // },
-    // {
-    //     path: "/register",
-    //     component: Register,
-    //     auth: false
-    // },
-    // {
-    //     path: "/find_password",
-    //     component: FindPassword,
-    //     auth: false
-    // },
-    // {
-    //     path: "/main/notice",
-    //     component: Notice,
-    //     auth: true
-    // },
-    // {
-    //     path: "/main/post",
-    //     component: Post,
-    //     auth: false
-    // },
-    // {
-    //     path: "/main/post/createpost",
-    //     component: CreatePost,
-    //     auth: true,
-    // },
-    // {
-    //     path: "/main/post/postdetail",
-    //     component: PostDetail,
-    //     auth: false,
-    // },
-    // {
-    //     path: "/main/profile",
-    //     component: Profile,
-    //     auth: false
-    // },
-
-    // {
-    //     path: "/main/profile/mypublish",
-    //     component: MyPublish,
-    //     auth: true
-    // },
-
-    // {
-    //     path: "/main/profile/mycollection",
-    //     component: MyCollection,
-    //     auth: true
-    // },
-
-    // {
-    //     path: "/main/profile/mydraft",
-    //     component: MyDraft,
-    //     auth: true
-    // },
-
-    // {
-    //     path: "/main/profile/theme",
-    //     component: Theme,
-    //     auth: true
-    // },
-
-    // {
-    //     path: "/main/profile/authentication",
-    //     component: Authentication,
-    //     auth: true
-    // },
-
-    // {
-    //     path: "/main/profile/setup",
-    //     component: Setup,
-    //     auth: true
-    // },
-    // {
-    //     path: "/main/profile/setup/avatar",
-    //     component: EditAvatar,
-    //     auth: true
-    // },
-
-    // {
-    //     path: "/main/task",
-    //     component: Task,
-    //     auth: true
-    // },
-    // {
-    //     path: "/main/task/createtask",
-    //     component: CreateTask,
-    //     auth: true
-    // },
-    // {
-    //     path: "/main/task/taskdetail",
-    //     component: TaskDetail,
-    //     auth: true
-    // },
-    // {
-    //     path: "/main/report",
-    //     component: Report,
-    //     auth: true
-    // },
-    // {
-    //     path: "/notfound",
-    //     component: NotFound,
-    //     auth: false
-    // },
+    {
+        path: "/progress-count",
+        component: ProgressCount,
+        meta: {
+            isAuth: true,
+            title: "进度统计",
+        },
+    },
+    {
+        path: "/submit-list/*",
+        component: SubmitList,
+        meta: {
+            isAuth: true,
+            title: "提交列表",
+        },
+    },
+    {
+        path: "/submit-list/detail/:id",
+        component: SubmitListDetail,
+        meta: {
+            isAuth: true,
+            title: "提交列表-详细",
+        },
+    },
+    {
+        path: "/submit-list/edit/:id",
+        component: SubmitListEdit,
+        meta: {
+            isAuth: true,
+            title: "提交列表-编辑",
+        },
+    },
+    {
+        path: "/basic-message",
+        component: BasicMessage,
+        meta: {
+            isAuth: true,
+            title: "基本信息",
+        },
+    },
+    {
+        path: "/student-list",
+        component: StudentList,
+        meta: {
+            isAuth: true,
+            title: "学生信息",
+        },
+    },
+    {
+        path: "/student-list/detail/:id",
+        component: StudentListDetail,
+        meta: {
+            isAuth: true,
+            title: "学生信息-详细",
+        },
+    },
+    {
+        path: "/student-list/edit/:id",
+        component: StudentListEdit,
+        meta: {
+            isAuth: true,
+            title: "学生信息-编辑",
+        },
+    },
+    {
+        path: "/student-list/stage-detail/:id",
+        component: StudentListStageDetail,
+        meta: {
+            isAuth: true,
+            title: "学生信息-进度详细",
+        },
+    },
+    {
+        path: "/process",
+        component: Process,
+        meta: {
+            isAuth: true,
+            title: "毕业设计流程",
+        },
+    },
+    {
+        path: "/review-list",
+        component: ReviewList,
+        meta: {
+            isAuth: true,
+            title: "审核列表",
+        },
+    },
+    {
+        path: "/review-list/detail/:id",
+        component: ReviewListDetail,
+        meta: {
+            isAuth: true,
+            title: "审核列表-详细",
+        },
+    },
+    {
+        path: "/teacher-list",
+        component: TeacherList,
+        meta: {
+            isAuth: true,
+            title: "教师列表",
+        },
+    },
+    {
+        path: "/teacher-list/detail/:id",
+        component: TeacherListDetail,
+        meta: {
+            isAuth: true,
+            title: "教师列表-详细",
+        },
+    },
+    {
+        path: "/teacher-list/edit/:id",
+        component: TeacherListEdit,
+        meta: {
+            isAuth: true,
+            title: "教师列表-编辑",
+        },
+    },
 ];
 
 const routerAuth = (meta: any) => {
@@ -122,7 +153,9 @@ const routerAuth = (meta: any) => {
 
     const token = localStorage.getItem("token") || '';
     if (!token && meta.isAuth) {
-        return '/';
+        return false;
+    } else if (token) {
+        return true;
     }
 }
 

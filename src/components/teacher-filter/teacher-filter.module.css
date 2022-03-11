@@ -1,0 +1,12 @@
+.filter {
+    margin: 2% 6%;
+}
+
+.filter_form > div {
+    width: 100%;
+}
+
+.btn {
+    display: flex;
+    justify-content: flex-start;
+}

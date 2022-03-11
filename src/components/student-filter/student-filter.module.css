@@ -1,0 +1,12 @@
+.filter {
+    margin: 2% 6%;
+}
+
+.filter_form {
+    justify-content: space-between;
+}
+
+.btn {
+    display: flex;
+    justify-content: flex-end;
+}

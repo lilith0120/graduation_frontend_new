@@ -1,0 +1,66 @@
+.main {
+    margin: 2% 14%;
+}
+
+/* .main :global .ant-tree-switcher-noop {
+    display: none;
+} */
+
+.main :global .ant-tree-list-holder-inner {
+    font-size: 20px;
+}
+
+.main :global .ant-tree-treenode {
+    margin: 10px 0;
+}
+
+.main :global .ant-tree-treenode:hover {
+    cursor: pointer;
+}
+
+.tree {
+    height: 500px;
+    overflow: auto;
+}
+
+.tree_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+}
+
+.tree_content {
+    display: flex;
+    align-items: center;
+    width: 50%;
+}
+
+.tree_title {
+    margin-left: 1%;
+}
+
+.tree_btn {
+    /* width: 30%; */
+    display: flex;
+    justify-content: space-around;
+}
+
+.tree::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 10px;
+}
+
+.tree::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background   : #002766;
+}
+
+.tree::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background   : #ededed;
+}
