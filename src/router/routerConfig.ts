@@ -25,6 +25,14 @@ const routers = [
         },
     },
     {
+        path: "/",
+        component: ProgressCount,
+        meta: {
+            isAuth: true,
+            title: "进度统计",
+        },
+    },
+    {
         path: "/progress-count",
         component: ProgressCount,
         meta: {
