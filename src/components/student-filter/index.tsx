@@ -145,7 +145,7 @@ const StudentFilter = (props: any) => {
                         {
                             role === roles.TEACHER ?
                                 <Col span={6}>
-                                    <Form.Item label="毕业设计阶段" name="process">
+                                    <Form.Item label="毕业设计阶段" name="stage_id">
                                         <Select
                                             placeholder="请选择毕业设计阶段"
                                             allowClear>

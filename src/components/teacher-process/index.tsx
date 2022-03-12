@@ -25,6 +25,7 @@ const TeacherProcess = () => {
                 key: 0,
                 children: [
                     {
+                        id: 0,
                         key: "0-0",
                         title: '开题报告子项1',
                         pre_id: -1,
@@ -33,17 +34,19 @@ const TeacherProcess = () => {
                         end_at: "2022-02-24 16:06:00",
                     },
                     {
+                        id: 1,
                         key: "0-1",
                         title: '开题报告子项2',
-                        pre_id: "0-0",
+                        pre_id: 0,
                         parent_id: 0,
                         begin_at: "2022-02-22 16:06:00",
                         end_at: "2022-02-24 16:06:00",
                     },
                     {
+                        id: 2,
                         key: "0-2",
                         title: '开题报告子项3',
-                        pre_id: "0-1",
+                        pre_id: 1,
                         parent_id: 0,
                         begin_at: "2022-02-22 16:06:00",
                         end_at: "2022-02-24 16:06:00",
@@ -55,6 +58,7 @@ const TeacherProcess = () => {
                 key: 1,
                 children: [
                     {
+                        id: 0,
                         key: "1-0",
                         title: '任务书子项1',
                         pre_id: -1,
@@ -63,25 +67,28 @@ const TeacherProcess = () => {
                         end_at: "2022-02-24 16:06:00",
                     },
                     {
+                        id: 1,
                         key: "1-1",
                         title: '任务书子项2',
-                        pre_id: "1-0",
+                        pre_id: 0,
                         parent_id: 1,
                         begin_at: "2022-02-22 16:06:00",
                         end_at: "2022-02-24 16:06:00",
                     },
                     {
+                        id: 2,
                         key: "1-2",
                         title: '任务书子项3',
-                        pre_id: "1-1",
+                        pre_id: 1,
                         parent_id: 1,
                         begin_at: "2022-02-22 16:06:00",
                         end_at: "2022-02-24 16:06:00",
                     },
                     {
+                        id: 3,
                         key: "1-3",
                         title: '任务书子项4',
-                        pre_id: "1-2",
+                        pre_id: 2,
                         parent_id: 1,
                     },
                 ],
@@ -91,6 +98,7 @@ const TeacherProcess = () => {
                 key: 2,
                 children: [
                     {
+                        id: 0,
                         key: "2-0",
                         title: '中期报告子项1',
                         pre_id: -1,
@@ -103,6 +111,7 @@ const TeacherProcess = () => {
                 key: 3,
                 children: [
                     {
+                        id: 0,
                         key: "3-0",
                         title: '毕业设计论文子项1',
                         pre_id: -1,
@@ -120,7 +129,7 @@ const TeacherProcess = () => {
             key: -1,
             title: "",
             parent_id: key,
-            pre_id: children && children.length > 0 ? children[children.length - 1]?.key : -1,
+            pre_d: children && children.length > 0 ? children[children.length - 1]?.id : -1,
             isEdit: true,
         };
 
@@ -171,14 +180,14 @@ const TeacherProcess = () => {
     };
 
     const handleClickDelete = (node: any) => {
-        const { key, pre_id, parent_id } = node;
+        const { id, pre_id, parent_id } = node;
         processData.map((item) => {
-            if (item.key === parent_id) {
+            if (item.id === parent_id) {
                 const newData = item.children.filter((i: any) => {
-                    if (i.key === key) {
+                    if (i.id === id) {
                         // eslint-disable-next-line array-callback-return
                         return;
-                    } else if (i.pre_id === key) {
+                    } else if (i.pre_id === id) {
                         i.pre_id = pre_id;
                     };
 
