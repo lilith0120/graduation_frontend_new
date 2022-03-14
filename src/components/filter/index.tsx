@@ -51,7 +51,7 @@ const Filter = (props: any) => {
                         <Input
                             placeholder="请输入文件名" allowClear />
                     </Form.Item>
-                    <Form.Item label="毕业设计阶段" name="process">
+                    <Form.Item label="毕业设计阶段" name="process_id">
                         <Select
                             placeholder="请选择毕业设计阶段"
                             style={{ width: 180 }}
