@@ -159,7 +159,7 @@ const TeacherProgressCount = () => {
                 footer={null}
                 width={1000}
                 onCancel={handleCancelPushModal}>
-                <StudentDetailModal modalType={"push"} />
+                <StudentDetailModal modalType={"push"} stageId={stageList[current].id} />
             </Modal>
             <Modal className={style.detail_modal}
                 title={`学生完成情况 (${stageList[current]?.name}阶段)`}
@@ -167,7 +167,7 @@ const TeacherProgressCount = () => {
                 footer={null}
                 width={1000}
                 onCancel={handleCancelFinishModal}>
-                <StudentDetailModal modalType={"finish"} />
+                <StudentDetailModal modalType={"finish"} stageId={stageList[current].id} />
             </Modal>
         </div>
     )

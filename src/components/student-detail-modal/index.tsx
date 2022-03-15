@@ -8,10 +8,11 @@ import LabelHeader from "../label-header";
 
 const StudentDetailModal = (props: any) => {
     const navigate = useNavigate();
-    const { modalType } = props;
+    const { modalType, stageId } = props;
     const [detailList, setDetailList] = useState<StudentDetail[]>([]);
 
     useEffect(() => {
+        console.log(stageId);
         const dl = [
             {
                 id: "111801429",
