@@ -68,7 +68,7 @@ const StudentDetailModal = (props: any) => {
             },
         ];
         setDetailList(dl);
-    }, []);
+    }, [stageId]);
 
     const handleClickDownload = (fileId = -1) => {
         if (fileId === -1) {
