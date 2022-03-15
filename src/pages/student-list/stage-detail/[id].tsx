@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Button, Descriptions, Tag, Space, Cascader } from 'antd';
+import { Button, Descriptions, Tag, Space, Select } from 'antd';
 import style from '../../../assets/styles/student-list/stage-detail.module.css';
 import reviewStatus from '../../../config/review-status';
 
@@ -11,7 +11,7 @@ const StudentStageDetail = () => {
     const navigate = useNavigate();
     const [studentId, setStudentId] = useState("-1");
     const [selectOption, setSelectOption] = useState<any[]>([]);
-    const [select, setSelect] = useState<any>([]);
+    const [select, setSelect] = useState<any>();
     const [studentDetail, setStudentDetail] = useState<StudentData>({
         name: "", grade: "", profession: "", sex: "", email: "", stage: "",
     });
@@ -63,39 +63,19 @@ const StudentStageDetail = () => {
     const getSelectOption = async () => {
         const so = [
             {
-                value: 0,
-                label: '开题报告',
-                children: [
-                    {
-                        value: 0,
-                        label: '未审核',
-                        children: [
-                            {
-                                value: 2,
-                                label: '2022.02.22 22:22:22',
-                            },
-                        ],
-                    },
-                ],
+                id: 0,
+                stage: '开题报告',
+                status: '审核通过',
+                time: '2022-02-22 12:00:00',
             },
             {
-                value: 1,
-                label: '任务书',
-                children: [
-                    {
-                        value: 0,
-                        label: '未审核',
-                        children: [
-                            {
-                                value: 5,
-                                label: '2022.02.23 23:33:33',
-                            },
-                        ],
-                    },
-                ],
+                id: 1,
+                stage: '任务书',
+                status: '审核通过',
+                time: '2022-02-22 12:00:00',
             },
         ];
-        setSelect([0, 0, 2]);
+        setSelect(so[0].id);
         setSelectOption(so);
     };
 
@@ -156,11 +136,17 @@ const StudentStageDetail = () => {
                 <div className={style.header}>
                     <LabelHeader label={"提交信息"} />
                     <Space>
-                        <Cascader className={style.cascader}
-                            options={selectOption}
+                        <Select className={style.cascader}
                             value={select}
-                            allowClear={false}
-                            onChange={handleChangeSelect} />
+                            onChange={handleChangeSelect} >
+                            {
+                                selectOption.map((item, index) => (
+                                    <Select.Option key={index} value={item.id}>
+                                        {`${item.id} -- ${item.stage} -- ${item.status} -- ${item.time}`}
+                                    </Select.Option>
+                                ))
+                            }
+                        </Select>
                         <Button type="primary" onClick={handleClickReview}
                             disabled={reviewStatus[fileDetail.file_status] === 2 || reviewStatus[fileDetail.file_status] === 3 ? true : false}>
                             审核
