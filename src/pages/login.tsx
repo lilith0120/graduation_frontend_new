@@ -10,6 +10,7 @@ import {
 import copy from 'copy-to-clipboard';
 import logoHome from '../assets/images/logo_home.png';
 import styles from '../assets/styles/index.module.css';
+import axios from '../http';
 
 import ForgotPasswordModal from '../components/forgot-password-modal';
 
@@ -41,8 +42,19 @@ const Login = () => {
         setShowModal(false);
     };
 
-    const handleSubmit = (value: any) => {
-        console.log(value);
+    const handleSubmit = async (value: any) => {
+        const res: any = await axios.post('/api/user/login', {
+            ...value,
+        });
+
+        if (!res) {
+            return;
+        }
+
+        const { token, role, userName } = res;
+        localStorage.setItem('token', token);
+        localStorage.setItem('role', role);
+        localStorage.setItem('name', userName);
         navigate('/progress-count', { replace: true });
     };
 
@@ -73,7 +85,7 @@ const Login = () => {
                         onFinish={handleSubmit}
                     >
                         <Form.Item
-                            name="user_id"
+                            name="userId"
                             rules={[{ required: true, message: '请输入学号/教职工号/管理员号!' }]}
                         >
                             <Input
@@ -87,7 +99,7 @@ const Login = () => {
                                 } />
                         </Form.Item>
                         <Form.Item
-                            name="user_pswd"
+                            name="userPswd"
                             rules={[{ required: true, message: '请输入密码!' }]}
                         >
                             <Input.Password

@@ -1,6 +1,7 @@
-import { Descriptions, Input, message } from 'antd';
+import { Descriptions, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import style from './student-message.module.css';
+import axios from '../../http';
 
 const StudentMessage = (props: any) => {
     const { stuMsgSave } = props;
@@ -9,18 +10,30 @@ const StudentMessage = (props: any) => {
     );
 
     useEffect(() => {
-        const m = {
-            name: "九歌",
-            student_id: "111801429",
-            sex: "女",
-            grade: "2018",
-            profession: "软件工程",
-            email: "3428098215@qq.com",
-            teacher_name: "行露",
-            teacher_email: "1131155106@qq.com",
-        };
-        setStuMessage(m);
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const fetchData = async () => {
+        const res: any = await axios.get('/api/student');
+        if (!res) {
+            return;
+        }
+
+        const { User, Profession, Teacher } = res;
+        const msg = {
+            name: res.name,
+            student_id: User.user_id,
+            sex: res.sex ? "女" : "男",
+            grade: res.grade,
+            profession: Profession.name,
+            email: User.email,
+            teacher_name: Teacher.name,
+            teacher_email: Teacher.User.email,
+        };
+        setStuMessage(msg);
+        stuMsgSave(msg);
+    };
 
     const handleChangeEmail = (e: any) => {
         stuMessage.email = e.target.value;
@@ -31,7 +44,6 @@ const StudentMessage = (props: any) => {
         const email = e.target.value;
         const regex = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
         if (!regex.test(email)) {
-            message.error('邮箱格式不正确！', 1);
             stuMsgSave("errorEmail");
 
             return;

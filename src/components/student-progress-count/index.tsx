@@ -2,88 +2,42 @@ import { Steps, Descriptions, Tag, Button } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import style from './student-process.module.css';
+import axios from '../../http';
 
 const StudentProgressCount = () => {
     const navigate = useNavigate();
-    const [current, setCurrent] = useState(0);
+    const [current, setCurrent] = useState(-1);
     const [stageList, setStageList] = useState<processStageList[]>([]);
 
     useEffect(() => {
-        const s = [
-            {
-                id: 0,
-                name: "开题报告",
-                begin_at: "2022.02.11 19:39:21",
-                end_at: "2022.02.13 20:39:21",
-                status: "finish",
-                isDone: true,
-                file_id: 2,
-                file_name: "111801429_吴寒_福州大学本科生毕业设计（论文）任务书（第二版）",
-            },
-            {
-                id: 1,
-                name: "任务书",
-                begin_at: "2022.02.13 21:39:21",
-                end_at: "2022.02.15 18:39:21",
-                status: "finish",
-                isDone: false,
-            },
-            {
-                id: 2,
-                name: "中期报告",
-                begin_at: "2022.02.15 19:39:21",
-                end_at: "2022.02.17 20:39:21",
-                status: "process",
-                isDone: false,
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                status: "wait",
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-        ];
-        setStageList(s);
-        s.forEach((item) => {
-            if (item.status === "process") {
-                setCurrent(item.id);
-            }
-        });
+        fetchData();
     }, []);
+
+    useEffect(() => {
+        if (current >= 0) {
+            sessionStorage.setItem("current", current.toString());
+        }
+    }, [current]);
+
+    const fetchData = async () => {
+        const res: any = await axios.get('/api/student/progress');
+        if (!res) {
+            return;
+        }
+        const { progress } = res;
+        setStageList(progress);
+
+        const cur = sessionStorage.getItem("current");
+        if (cur) {
+            setCurrent(parseInt(cur));
+        } else {
+            progress.forEach((item: any, index: any) => {
+                if (item.status === "process") {
+                    setCurrent(index);
+                }
+            });
+        }
+    };
 
     const handleChangeCurrent = (cur: any) => {
         setCurrent(cur);

@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Descriptions, Tag, Space, Select } from 'antd';
 import style from '../../../assets/styles/student-list/stage-detail.module.css';
-import reviewStatus from '../../../config/review-status';
+import { getType } from '../../../config/review-status';
 
 import LabelHeader from "../../../components/label-header";
 
@@ -16,7 +16,7 @@ const StudentStageDetail = () => {
         name: "", grade: "", profession: "", sex: "", email: "", stage: "",
     });
     const [fileDetail, setFileDetail] = useState<FileData>({
-        file_id: -1, file_name: "", file_status: "", submit_time: "", file_stage: "",
+        file_id: -1, file_name: "", status: 0, createdAt: "", Stage: { name: "" },
     });
 
     useEffect(() => {
@@ -53,9 +53,11 @@ const StudentStageDetail = () => {
             file_id: 2,
             file_name: '111801429_吴寒_福州大学本科生毕业设计（论文）任务书（第二版）',
             file_detail: '说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢',
-            file_stage: "开题报告",
-            file_status: "审核中",
-            submit_time: "2022-02-11 19:09:30",
+            Stage: {
+                name: "开题报告",
+            },
+            status: 1,
+            createdAt: "2022-02-11 19:09:30",
         };
         setFileDetail(fd);
     };
@@ -148,7 +150,7 @@ const StudentStageDetail = () => {
                             }
                         </Select>
                         <Button type="primary" onClick={handleClickReview}
-                            disabled={reviewStatus[fileDetail.file_status] === 2 || reviewStatus[fileDetail.file_status] === 3 ? true : false}>
+                            disabled={fileDetail.status === 2 || fileDetail.status === 3 ? true : false}>
                             审核
                         </Button>
                     </Space>
@@ -169,22 +171,22 @@ const StudentStageDetail = () => {
                             {fileDetail?.file_detail}
                         </Descriptions.Item>
                         <Descriptions.Item label="毕业设计阶段">
-                            {fileDetail?.file_stage}
+                            {fileDetail.Stage?.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="提交状态">
                             <Tag color={
-                                reviewStatus[fileDetail.file_status] === 0 ?
+                                fileDetail.status === 0 ?
                                     "default" :
-                                    reviewStatus[fileDetail.file_status] === 1 ?
+                                    fileDetail.status === 1 ?
                                         "processing" :
-                                        reviewStatus[fileDetail.file_status] === 2 ?
+                                        fileDetail.status === 2 ?
                                             "success" : "error"
                             }>
-                                {fileDetail?.file_status}
+                                {getType(fileDetail.status)}
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="提交时间">
-                            {fileDetail?.submit_time}
+                            {fileDetail?.createdAt}
                         </Descriptions.Item>
                     </Descriptions>
                 </div>

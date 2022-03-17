@@ -1,7 +1,7 @@
 import { Form, Input, Button, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import style from './filter.module.css';
-import reviewStatus from '../../config/review-status';
+import { reviewStatus } from '../../config/review-status';
 
 import LabelHeader from '../label-header';
 

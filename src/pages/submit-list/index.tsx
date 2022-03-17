@@ -2,7 +2,8 @@ import { Table, Tag, Space, Button, Tooltip } from 'antd';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import style from '../../assets/styles/submit-list/submit-list.module.css';
-import reviewStatus from "../../config/review-status";
+import { getType } from "../../config/review-status";
+import axios from "../../http";
 
 import Filter from '../../components/filter';
 
@@ -11,50 +12,41 @@ const SubmitList = () => {
     const [fileData, setFileData] = useState<FILEDATA[]>([]);
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [filterMsg, setFilterMsg] = useState<any>({});
 
     useEffect(() => {
-        const data = [];
-        data.push({
-            id: 0,
-            file_name: 'JohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohnJohn',
-            file_stage: "开题报告",
-            file_status: "审核中",
-            submit_time: "2022-02-11 19:09:30",
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pageSize, currentPage, filterMsg]);
+
+    const fetchData = async () => {
+        const { file_name, process_id, file_status } = filterMsg;
+        const res: any = await axios.post('/api/student/all_file', {
+            size: pageSize,
+            current: currentPage,
+            search: {
+                file_name,
+                process_id,
+                file_status,
+            },
         });
-        data.push({
-            id: 1,
-            file_name: 'John',
-            file_stage: "开题报告",
-            file_status: "审核通过",
-            submit_time: "2022-02-11 19:09:30",
-        });
-        data.push({
-            id: 2,
-            file_name: 'John',
-            file_stage: "开题报告",
-            file_status: "审核驳回",
-            submit_time: "2022-02-11 19:09:30",
-        });
-        for (let i = 3; i < 100; i++) {
-            data.push({
-                id: i,
-                file_name: 'John',
-                file_stage: "开题报告",
-                file_status: "未审核",
-                submit_time: "2022-02-11 19:09:30",
-            });
+
+        if (!res) {
+            return;
         }
-        setFileData(data);
-        setTotalItems(100);
-    }, []);
+        const { totalNum, files } = res;
+        setTotalItems(totalNum);
+        setFileData(files);
+    };
 
     const handleChangePage = (page: any, size: any) => {
-        console.log(page);
+        setCurrentPage(page);
         setPageSize(size);
     };
 
     const searchSubmitList = (msg: any) => {
-        console.log("filterMsg: ", msg);
+        setFilterMsg(msg);
     };
 
     const handleClickCreate = () => {
@@ -102,11 +94,11 @@ const SubmitList = () => {
                             </Tooltip>
                         </div>
                     )} />
-                <Table.Column title="毕业设计阶段" dataIndex="file_stage" />
-                <Table.Column title="审核状态" dataIndex="file_status"
+                <Table.Column title="毕业设计阶段" dataIndex="stage_name" />
+                <Table.Column title="审核状态" dataIndex="status"
                     render={(text) => {
                         let color = "default";
-                        const status = reviewStatus[text];
+                        const status = text;
 
                         if (status === 1) {
                             color = "processing";
@@ -116,9 +108,9 @@ const SubmitList = () => {
                             color = "error"
                         };
 
-                        return <Tag color={color}>{text}</Tag>;
+                        return <Tag color={color}>{getType(text)}</Tag>;
                     }} />
-                <Table.Column title="提交时间" dataIndex="submit_time" />
+                <Table.Column title="提交时间" dataIndex="createdAt" />
                 <Table.Column
                     title="操作"
                     render={(text) => (
@@ -128,7 +120,7 @@ const SubmitList = () => {
                                 查看
                             </Button>
                             {
-                                reviewStatus[text.file_status] === 0 &&
+                                text.status === 0 &&
                                 <Button type="primary" size="small" ghost
                                     onClick={() => handleClickEdit(text)}>
                                     编辑

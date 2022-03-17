@@ -6,6 +6,8 @@ import {
     ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import style from '../../../assets/styles/submit-list/edit.module.css';
+import axios from '../../../http';
+import fileAxios from '../../../http/form';
 
 import LabelHeader from "../../../components/label-header";
 
@@ -13,7 +15,7 @@ const Edit = () => {
     const params = useParams();
     const navigate = useNavigate();
     const [form] = Form.useForm();
-    const [fileId, setFileId] = useState("-1");
+    const [fileId, setFileId] = useState(-1);
     const [stageList, setStageList] = useState<stageList[]>([]);
     const [fileList, setFileList] = useState<any>([]);
 
@@ -27,56 +29,35 @@ const Edit = () => {
             setFileId(fi);
         }
 
-        const sl = [
-            {
-                id: 0,
-                name: "开题报告",
-                disabled: true,
-            },
-            {
-                id: 1,
-                name: "任务书",
-                disabled: false,
-            },
-            {
-                id: 2,
-                name: "中期报告",
-                disabled: false,
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                disabled: true,
-            },
-        ];
-        setStageList(sl);
+        getStageList();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        if (fileId !== "-1") {
+        if (fileId !== -1) {
             fetchData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fileId]);
 
     const fetchData = async () => {
-        console.log(fileId);
-        const f = {
-            file_name: '111801429_吴寒_福州大学本科生毕业设计（论文）任务书（第二版）',
-            file_detail: '说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢',
-            file_stage: 2,
-            file_url: "http://baidu.com",
-        };
-
+        const res: any = await axios.get(`/api/student/file/${fileId}`);
+        const { id, file_name, file_url } = res;
         const fl = {
-            uid: fileId,
-            name: f.file_name,
-            url: f.file_url,
+            uid: id,
+            name: file_name,
+            url: file_url,
         };
 
         setFileList([{ ...fl }]);
-        form.setFieldsValue(f);
+        form.setFieldsValue(res);
+    };
+
+    const getStageList = async () => {
+        const res: any = await axios.get(`/api/util/get_process`);
+        const { process } = res;
+
+        setStageList(process);
     };
 
     const handleClickBack = () => {
@@ -87,6 +68,27 @@ const Edit = () => {
                 navigate(-1);
             },
         });
+    };
+
+    const handleCheckFileSize = (file: any) => {
+        const size = 2 * 1024 * 1024;
+        if (file.size > size) {
+            message.error("文件大小不能超过2MB", 1);
+
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleUploadFile = async (option: any) => {
+        const formData = new FormData();
+        formData.append('file', option.file);
+
+        const res = await fileAxios.post('/api/util/upload_file', {
+            formData,
+        });
+        console.log(res);
     };
 
     const handleChangeUpload = (info: any) => {
@@ -139,7 +141,7 @@ const Edit = () => {
                         <Input placeholder="请输入文件名" showCount maxLength={50} allowClear />
                     </Form.Item>
                     <Form.Item
-                        label="毕业设计阶段" name="file_stage"
+                        label="毕业设计阶段" name="StageId"
                         rules={[{ required: true, message: '毕业设计阶段不能为空' }]}>
                         <Select placeholder="请选择毕业设计阶段">
                             {
@@ -159,15 +161,16 @@ const Edit = () => {
                     </Form.Item>
                     <Form.Item label="上传文件" name="file_list"
                         rules={[{ required: true, message: '上传文件不能为空' }]}>
-                        <Upload.Dragger name="file" maxCount={1}
+                        <Upload.Dragger maxCount={1}
                             onChange={handleChangeUpload}
                             fileList={fileList}
-                            action="/upload-file">
+                            beforeUpload={handleCheckFileSize}
+                            customRequest={handleUploadFile}>
                             <p className="ant-upload-drag-icon">
                                 <InboxOutlined />
                             </p>
                             <p className="ant-upload-text">单击或拖动文件到该区域进行上传</p>
-                            <p className="ant-upload-hint">仅支持单文件上传.</p>
+                            <p className="ant-upload-hint">仅支持小于2MB的单文件上传.</p>
                         </Upload.Dragger>
                     </Form.Item>
                 </Form>

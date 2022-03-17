@@ -2,7 +2,7 @@ import { List, Button, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import style from './student-detail-modal.module.css';
-import reviewStatus from '../../config/review-status';
+import { reviewStatus } from '../../config/review-status';
 
 import LabelHeader from "../label-header";
 

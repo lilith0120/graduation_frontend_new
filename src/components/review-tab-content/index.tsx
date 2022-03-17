@@ -1,7 +1,7 @@
 import { Table, Button, Tag, Tooltip, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import reviewStatus from '../../config/review-status';
+import { reviewStatus } from '../../config/review-status';
 import style from './review-tab-content.module.css';
 
 const ReviewTabContent = (props: any) => {

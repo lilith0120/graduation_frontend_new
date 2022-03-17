@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Space, Button, Descriptions, Tag, Modal, Input, notification } from 'antd';
 import style from '../../../assets/styles/review-list/detail.module.css';
-import reviewStatus from "../../../config/review-status";
+import { reviewStatus } from "../../../config/review-status";
 
 import LabelHeader from "../../../components/label-header";
 

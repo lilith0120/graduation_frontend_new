@@ -3,10 +3,14 @@ interface FileData {
     file_name: string,
     file_url?: string,
     file_detail?: string,
-    file_stage: string,
-    file_status: string,
-    submit_time: string,
-    teacher_name?: string,
+    Stage: {
+        name: string
+    },
+    status: number,
+    createdAt: string,
+    Teacher?: {
+        name: string,
+    },
     review?: string,
-    review_time?: string,
+    review_at?: string,
 };

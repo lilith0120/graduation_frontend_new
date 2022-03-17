@@ -19,10 +19,14 @@
     margin-right: 1%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     color: #fff;
     font-weight: bold;
-    width: 77px;
+    width: 200px;
+}
+
+.user_msg > div:nth-last-child(1) {
+    margin-left: 10%;
 }
 
 .user_msg > div:nth-last-child(1):hover {

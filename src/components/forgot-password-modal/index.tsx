@@ -7,11 +7,13 @@ import {
 } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import style from './forgot-password-modal.module.css';
+import axios from '../../http';
 
 const ForgotPasswordModal = (props: any) => {
     const { handleClose } = props;
     const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
+    const [userId, setUserId] = useState("");
     const [email, setEmail] = useState("");
     const [count, setCount] = useState(60);
     const [isClick, setIsClick] = useState(false);
@@ -29,11 +31,10 @@ const ForgotPasswordModal = (props: any) => {
         }
     }, [isClick, count]);
 
-    const handleBlurId = (e: any) => {
+    const handleBlurId = async (e: any) => {
         const user_id = e.target.value;
-        console.log(user_id);
-
-        const email = "1131155106@qq.com";
+        setUserId(user_id);
+        const { email } = await getEmail(user_id);
 
         form.setFieldsValue({
             email,
@@ -41,20 +42,58 @@ const ForgotPasswordModal = (props: any) => {
         setEmail(email);
     };
 
-    const handleClickSendCode = () => {
-        console.log("send...");
+    const handleClickSendCode = async () => {
+        const res = await axios.post('/api/user/email_code', {
+            email,
+        });
+
+        if (!res) {
+            return;
+        }
         setIsClick(true);
     };
 
-    const handleClickNext = (value: any) => {
-        console.log(value);
+    const handleClickNext = async (value: any) => {
+        const res = await verifyEmail(value);
+        if (!res) {
+            return;
+        }
         setCurrent(current + 1);
     };
 
-    const handleClickFinish = (value: any) => {
-        console.log(value);
+    const handleClickFinish = async (value: any) => {
+        const res = await updatePassword(value);
+        if (!res) {
+            return;
+        }
         message.success('重置密码完成!');
         handleClose();
+    };
+
+    const getEmail = async (userId: any) => {
+        const res: any = await axios.get(`/api/user/email/${userId}`);
+        if (!res) {
+            form.setFieldsValue({
+                email: "",
+            });
+            setEmail("");
+        }
+
+        return res;
+    };
+
+    const verifyEmail = async (body: any) => {
+        return await axios.post('/api/user/check_email_code', {
+            email: body.email,
+            code: body.email_code,
+        });
+    };
+
+    const updatePassword = async (body: any) => {
+        return await axios.patch('/api/user/rewrite_password', {
+            userId: userId,
+            userPswd: body.pswd,
+        });
     };
 
     return (

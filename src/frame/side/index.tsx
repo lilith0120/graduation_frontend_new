@@ -26,12 +26,12 @@ const Side = () => {
 
     useEffect(() => {
         setSelected(location.pathname);
-        sessionStorage.clear();
     }, [location]);
 
     const handleClickGoItem = (item: any) => {
         const { key } = item;
         navigate(key, { replace: true });
+        sessionStorage.clear();
     };
 
     return (
