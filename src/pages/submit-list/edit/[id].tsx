@@ -7,7 +7,6 @@ import {
 } from '@ant-design/icons';
 import style from '../../../assets/styles/submit-list/edit.module.css';
 import axios from '../../../http';
-import fileAxios from '../../../http/form';
 
 import LabelHeader from "../../../components/label-header";
 
@@ -17,16 +16,17 @@ const Edit = () => {
     const [form] = Form.useForm();
     const [fileId, setFileId] = useState(-1);
     const [stageList, setStageList] = useState<stageList[]>([]);
+    const [file, setFile] = useState<any>({});
     const [fileList, setFileList] = useState<any>([]);
 
     useEffect(() => {
         const { id }: any = params;
         if (id) {
-            setFileId(id);
+            setFileId(parseInt(id));
         } else {
             const path = window.location.pathname.split('/');
             const fi: any = path[path.length - 1];
-            setFileId(fi);
+            setFileId(parseInt(fi));
         }
 
         getStageList();
@@ -49,6 +49,7 @@ const Edit = () => {
             url: file_url,
         };
 
+        setFile(fl);
         setFileList([{ ...fl }]);
         form.setFieldsValue(res);
     };
@@ -81,23 +82,14 @@ const Edit = () => {
         return true;
     };
 
-    const handleUploadFile = async (option: any) => {
-        const formData = new FormData();
-        formData.append('file', option.file);
-
-        const res = await fileAxios.post('/api/util/upload_file', {
-            formData,
-        });
-        console.log(res);
-    };
-
     const handleChangeUpload = (info: any) => {
-        const { status } = info.file;
-        if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-        }
+        const { status, response } = info.file;
         if (status === 'done') {
             message.success(`${info.file.name}上传成功.`);
+            const { url } = response.msg;
+            info.file.url = url;
+
+            setFile(info.file);
         } else if (status === 'error') {
             message.error(`${info.file.name}上传失败`);
         };
@@ -117,12 +109,32 @@ const Edit = () => {
         };
 
         const fileData = {
-            ...form.getFieldsValue(),
-            file_list: fileList
+            file_id: fileId,
+            file_name: form.getFieldValue("file_name"),
+            file_url: file.url,
+            file_detail: form.getFieldValue("file_detail"),
+            file_stage: form.getFieldValue("StageId"),
         };
-        console.log(fileData);
+
+        const res: any = await uploadFileData(fileData);
+        if (!res) {
+            message.success('保存失败!');
+            return;
+        }
+
+        const { id } = res.newFile;
+        let file_id = fileId;
         message.success('保存成功!');
-        navigate(`/submit-list/detail/${fileId}`, { replace: true });
+        if (fileId === -1) {
+            file_id = id;
+        }
+        navigate(`/submit-list/detail/${file_id}`, { replace: true });
+    };
+
+    const uploadFileData = async (fileData: any) => {
+        return await axios.post('/api/student/file', {
+            file: fileData,
+        });
     };
 
     return (
@@ -159,13 +171,16 @@ const Edit = () => {
                             autoSize={{ minRows: 4, maxRows: 6 }}
                             showCount maxLength={200} />
                     </Form.Item>
-                    <Form.Item label="上传文件" name="file_list"
-                        rules={[{ required: true, message: '上传文件不能为空' }]}>
+                    <Form.Item label="上传文件" name="file_list">
                         <Upload.Dragger maxCount={1}
                             onChange={handleChangeUpload}
                             fileList={fileList}
                             beforeUpload={handleCheckFileSize}
-                            customRequest={handleUploadFile}>
+                            action={"http://81.71.128.138:8000/api/util/upload_file"}
+                            headers={{
+                                "token": localStorage.getItem('token') || ''
+                            }}
+                        >
                             <p className="ant-upload-drag-icon">
                                 <InboxOutlined />
                             </p>
