@@ -1,11 +1,19 @@
 import { Form, Input, Button, Select, Row, Col, Space } from 'antd';
+import { useEffect } from 'react';
 import style from './teacher-filter.module.css';
 
 import LabelHeader from '../label-header';
 
 const TeacherFilter = (props: any) => {
-    const { searchItem } = props;
+    const { searchItem, filterMsg } = props;
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        form.setFieldsValue({
+            ...filterMsg,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterMsg]);
 
     const handleClickReset = () => {
         form.resetFields();
@@ -24,7 +32,7 @@ const TeacherFilter = (props: any) => {
                 <Form className={style.filter_form} form={form} layout="inline">
                     <Row gutter={24}>
                         <Col span={7}>
-                            <Form.Item label="教职工号" name="teacher_id">
+                            <Form.Item label="教职工号" name="user_id">
                                 <Input
                                     placeholder="请输入教职工号" allowClear />
                             </Form.Item>

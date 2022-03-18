@@ -16,7 +16,29 @@ const SubmitList = () => {
     const [filterMsg, setFilterMsg] = useState<any>({});
 
     useEffect(() => {
+        const ps = sessionStorage.getItem("pageSize");
+        const cp = sessionStorage.getItem("currentPage");
+        const fm = sessionStorage.getItem("filterMsg");
+
+        if (ps) {
+            setPageSize(parseInt(ps));
+        }
+
+        if (cp) {
+            setCurrentPage(parseInt(cp));
+        }
+
+        if (fm) {
+            setFilterMsg(JSON.parse(fm));
+        }
+    }, []);
+
+    useEffect(() => {
         fetchData();
+
+        sessionStorage.setItem("pageSize", pageSize.toString());
+        sessionStorage.setItem("currentPage", currentPage.toString());
+        sessionStorage.setItem("filterMsg", JSON.stringify(filterMsg));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pageSize, currentPage, filterMsg]);
 
@@ -65,7 +87,7 @@ const SubmitList = () => {
 
     return (
         <div>
-            <Filter searchItem={searchSubmitList} />
+            <Filter searchItem={searchSubmitList} filterMsg={filterMsg} />
             <Table
                 className={style.table}
                 dataSource={fileData}

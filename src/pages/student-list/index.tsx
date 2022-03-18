@@ -3,15 +3,18 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import style from '../../assets/styles/student-list/student-list.module.css';
 import roles from "../../config/role";
+import axios from '../../http';
 
 import StudentFilter from "../../components/student-filter";
 
 const StudentList = () => {
     const navigate = useNavigate();
-    const [role, setRole] = useState(roles.TEACHER);
+    const [role, setRole] = useState<number>();
     const [fileData, setFileData] = useState<StudentListData[]>([]);
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [filterMsg, setFilterMsg] = useState<any>({});
     const [selectedList, setSelectedList] = useState([]);
 
     useEffect(() => {
@@ -20,30 +23,79 @@ const StudentList = () => {
     }, []);
 
     useEffect(() => {
-        const data = [];
-        for (let i = 0; i < 100; i++) {
-            data.push({
-                student_id: "00000000" + i,
-                name: 'John',
-                grade: "2018",
-                profession: "软件工程",
-                sex: "女",
-                teacher_name: "行露",
-                email: "3428098215@qq.com",
-                stage: "毕业设计论文",
-            });
+        const ps = sessionStorage.getItem("pageSize");
+        const cp = sessionStorage.getItem("currentPage");
+        const fm = sessionStorage.getItem("filterMsg");
+
+        if (ps) {
+            setPageSize(parseInt(ps));
         }
-        setFileData(data);
-        setTotalItems(100);
+
+        if (cp) {
+            setCurrentPage(parseInt(cp));
+        }
+
+        if (fm) {
+            setFilterMsg(JSON.parse(fm));
+        }
     }, []);
 
+    useEffect(() => {
+        if (role === roles.ADMIN) {
+            fetchDataByAdmin();
+        } else if (role === roles.TEACHER) {
+            fetchDataByTeacher();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pageSize, currentPage, filterMsg, role]);
+
+    const fetchDataByAdmin = async () => {
+        const { user_id, name, grade, sex, profession_id, teacher_id } = filterMsg;
+        const res: any = await axios.post('/api/student/all', {
+            size: pageSize,
+            current: currentPage,
+            search: {
+                user_id,
+                name,
+                grade,
+                sex,
+                profession_id,
+                teacher_id,
+            },
+        });
+
+        const { totalNum, students } = res;
+        setTotalItems(totalNum);
+        setFileData(students);
+    };
+
+    const fetchDataByTeacher = async () => {
+        const { user_id, name, grade, sex, stage_id } = filterMsg;
+        const res: any = await axios.post('/api/teacher/all_student', {
+            size: pageSize,
+            current: currentPage,
+            search: {
+                user_id,
+                name,
+                grade,
+                sex,
+                stage_id,
+            },
+        });
+
+        const { totalNum, students } = res;
+        setTotalItems(totalNum);
+        setFileData(students);
+    };
+
     const handleChangePage = (page: any, size: any) => {
-        console.log(page);
+        setCurrentPage(page);
         setPageSize(size);
     };
 
     const searchSubmitList = (msg: any) => {
-        console.log("filterMsg: ", msg);
+        console.log(msg);
+        setFilterMsg(msg);
     };
 
     const handleClickExport = () => {
@@ -63,16 +115,16 @@ const StudentList = () => {
     };
 
     const handleClickEdit = (text: any) => {
-        const { student_id } = text;
-        navigate(`/student-list/edit/${student_id}`);
+        const { id } = text;
+        navigate(`/student-list/edit/${id}`);
     };
 
     const handleClickDetail = (text: any) => {
-        const { student_id } = text;
+        const { id } = text;
         if (role === roles.ADMIN) {
-            navigate(`/student-list/detail/${student_id}`);
+            navigate(`/student-list/detail/${id}`);
         } else {
-            navigate(`/student-list/stage-detail/${student_id}`);
+            navigate(`/student-list/stage-detail/${id}`);
         }
     };
 
@@ -82,7 +134,7 @@ const StudentList = () => {
             <Table
                 className={style.table}
                 dataSource={fileData}
-                rowKey="student_id"
+                rowKey="id"
                 rowSelection={{
                     type: "checkbox",
                     onChange: handleChangeSelect
@@ -113,14 +165,17 @@ const StudentList = () => {
                 scroll={{ y: 280 }}>
                 <Table.Column title="学号" dataIndex="student_id" />
                 <Table.Column title="学生名字" dataIndex="name" />
-                <Table.Column title="性别" dataIndex="sex" />
+                <Table.Column title="性别" dataIndex="sex"
+                    render={(text) => {
+                        return text ? "女" : "男";
+                    }} />
                 <Table.Column title="年级" dataIndex="grade" />
-                <Table.Column title="专业" dataIndex="profession" />
+                <Table.Column title="专业" dataIndex="profession_name" />
                 {
                     role === roles.ADMIN ?
                         <Table.Column title="指导老师" dataIndex="teacher_name" /> :
                         <>
-                            <Table.Column title="毕业设计阶段" dataIndex="stage" width={200} />
+                            <Table.Column title="毕业设计阶段" dataIndex="stage_name" width={200} />
                             <Table.Column title="邮箱" dataIndex="email" width={200} />
                         </>
                 }

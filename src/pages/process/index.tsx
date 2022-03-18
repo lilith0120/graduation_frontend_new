@@ -7,7 +7,7 @@ import TeacherProcess from "../../components/teacher-process";
 import AdminProcess from "../../components/admin-process";
 
 const Process = () => {
-    const [role, setRole] = useState(roles.TEACHER);
+    const [role, setRole] = useState<number>();
 
     useEffect(() => {
         let userRole: any = localStorage.getItem("role") ?? roles.TEACHER;

@@ -5,6 +5,7 @@ import {
     ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import style from '../../../assets/styles/submit-list/edit.module.css';
+import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
 
@@ -12,35 +13,36 @@ const TeacherEdit = () => {
     const params = useParams();
     const navigate = useNavigate();
     const [form] = Form.useForm();
-    const [teacherId, setTeacherId] = useState("-1");
+    const [teacherId, setTeacherId] = useState(-1);
 
     useEffect(() => {
         const { id }: any = params;
         if (id) {
-            setTeacherId(id);
+            setTeacherId(parseInt(id));
         } else {
             const path = window.location.pathname.split('/');
             const ti: any = path[path.length - 1];
-            setTeacherId(ti);
+            setTeacherId(parseInt(ti));
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        if (teacherId !== "-1") {
+        if (teacherId !== -1) {
             fetchData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [teacherId]);
 
     const fetchData = async () => {
-        console.log(teacherId);
+        const res: any = await axios.get(`/api/admin/show_teacher/${teacherId}`);
+        const { name, sex, User: { email, user_id } } = res;
         const t = {
-            teacher_id: teacherId,
-            name: "九歌",
-            sex: "1",
-            email: "1131155106@qq.com",
+            teacher_id: user_id,
+            name,
+            sex: sex.toString(),
+            email,
         };
 
         form.setFieldsValue(t);
@@ -60,9 +62,20 @@ const TeacherEdit = () => {
         await form.validateFields();
 
         const fileData = form.getFieldsValue();
-        console.log(fileData);
+        const res = await updateTeacherMessage(fileData);
+        if (!res) {
+            message.error('保存失败!');
+
+            return;
+        }
         message.success('保存成功!');
         navigate(`/teacher-list/detail/${teacherId}`, { replace: true });
+    };
+
+    const updateTeacherMessage = async (fileData: any) => {
+        return await axios.patch(`/api/admin/edit_teacher/${teacherId}`, {
+            form: fileData,
+        });
     };
 
     return (

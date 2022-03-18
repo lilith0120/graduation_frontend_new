@@ -1,4 +1,4 @@
-import { Tree, Button, Input } from 'antd';
+import { Tree, Button, Input, message, Popconfirm } from 'antd';
 import { useEffect, useState } from 'react';
 import {
     NumberOutlined,
@@ -7,41 +7,26 @@ import {
 } from '@ant-design/icons';
 import TreeDrop from '../../config/tree-drag';
 import style from './admin-process.module.css';
-
+import axios from '../../http';
 
 const AdminProcess = () => {
     const [processData, setProcessData] = useState<AdminProcessList[]>([]);
     const [currentTitle, setCurrentTitle] = useState("");
 
     useEffect(() => {
-        const pd = [
-            {
-                title: '开题报告',
-                key: 0,
-                pre_id: -1,
-                isEdit: false,
-            },
-            {
-                title: '任务书',
-                key: 1,
-                pre_id: 0,
-                isEdit: false,
-            },
-            {
-                title: '中期报告',
-                key: 2,
-                pre_id: 1,
-                isEdit: false,
-            },
-            {
-                title: '毕业设计论文',
-                key: 3,
-                pre_id: 2,
-                isEdit: false,
-            },
-        ];
-        setProcessData(pd);
+        fetchData();
     }, []);
+
+    const fetchData = async () => {
+        const res: any = await axios.get('/api/admin/process');
+        const { baseStage } = res;
+        const result = baseStage.map((item: any) => {
+            item.isEdit = false;
+
+            return item;
+        });
+        setProcessData(result);
+    };
 
     const handleClickCreate = () => {
         const newItem = {
@@ -54,12 +39,12 @@ const AdminProcess = () => {
         setProcessData([...processData, newItem]);
     };
 
-    const handleDropProcessData = (info: any) => {
+    const handleDropProcessData = async (info: any) => {
         const dragPreId = info.dragNode.pre_id;
         const dropKey = info.node.key;
         const dragKey = info.dragNode.key;
         const data = TreeDrop(info, processData);
-        data.map((item: any) => {
+        const result = data.map((item: any) => {
             if (item.pre_id === dragKey) {
                 item.pre_id = dragPreId;
             } else if (item.key === dragKey) {
@@ -70,7 +55,9 @@ const AdminProcess = () => {
 
             return item;
         });
-        setProcessData([...data]);
+
+        await changeProcessPlace(result);
+        setProcessData([...result]);
     };
 
     const handleClickEdit = (node: any) => {
@@ -79,12 +66,11 @@ const AdminProcess = () => {
         setProcessData([...processData]);
     };
 
-    const handleClickDelete = (node: any) => {
+    const handleClickDelete = async (node: any) => {
         const { key, pre_id } = node;
         const newData = processData.filter((item) => {
             if (item.key === key) {
-                // eslint-disable-next-line array-callback-return
-                return;
+                return null;
             } else if (item.pre_id === key) {
                 item.pre_id = pre_id;
             };
@@ -92,6 +78,7 @@ const AdminProcess = () => {
             return item;
         });
 
+        await deleteProcess(node, newData);
         setProcessData([...newData]);
     };
 
@@ -100,16 +87,72 @@ const AdminProcess = () => {
         setProcessData([...processData]);
     };
 
-    const handleBlurEdit = (node: any) => {
+    const handleBlurEdit = async (node: any) => {
         node.isEdit = false;
         if (node.key === -1 && node.title === "") {
             processData.pop();
         } else if (node.title === "") {
             node.title = currentTitle;
+        } else {
+            if (node.key === -1) {
+                await addProcess(node);
+            } else {
+                await updatePrcess(node);
+            }
         }
 
         setCurrentTitle("");
         setProcessData([...processData]);
+    };
+
+    const addProcess = async (node: any) => {
+        const res: any = await axios.post('/api/admin/process/add', {
+            title: node.title,
+            pre_id: node.pre_id,
+        });
+
+        if (!res) {
+            message.error("新增失败");
+
+            return;
+        }
+
+        node.key = res.id;
+        node.id = res.id;
+        node.name = res.name;
+        setProcessData([...processData]);
+    };
+
+    const updatePrcess = async (node: any) => {
+        const res = await axios.patch(`/api/admin/process/edit/${node.key}`, {
+            title: node.title,
+        });
+
+        if (!res) {
+            message.error("修改失败");
+        }
+    };
+
+    const changeProcessPlace = async (data: any) => {
+        const res = await axios.patch('/api/admin/process/update', {
+            stage: data,
+        });
+
+        if (!res) {
+            message.error("修改位置失败");
+        }
+    };
+
+    const deleteProcess = async (node: any, data: any) => {
+        const res = await axios.delete(`/api/admin/process/delete/${node.key}`, {
+            data: {
+                stage: data,
+            },
+        });
+
+        if (!res) {
+            message.error("删除失败");
+        }
     };
 
     return (
@@ -139,8 +182,15 @@ const AdminProcess = () => {
                         <div className={style.tree_btn}>
                             <Button shape="circle" icon={<EditOutlined />} title="编辑"
                                 onClick={() => handleClickEdit(node)} />
-                            <Button shape="circle" icon={<DeleteOutlined />} title="删除"
-                                onClick={() => handleClickDelete(node)} />
+                            <Popconfirm
+                                title="你是否确定要删除该阶段?"
+                                onConfirm={() => handleClickDelete(node)}
+                                okText="确定"
+                                cancelText="取消"
+                            >
+                                <Button shape="circle" icon={<DeleteOutlined />} title="删除" />
+                            </Popconfirm>
+
                         </div>
                     </div>
                 )}

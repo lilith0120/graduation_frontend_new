@@ -2,35 +2,32 @@ import { Form, Input, Button, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import style from './filter.module.css';
 import { reviewStatus } from '../../config/review-status';
+import axios from '../../http';
 
 import LabelHeader from '../label-header';
 
 const Filter = (props: any) => {
-    const { searchItem } = props;
+    const { searchItem, filterMsg } = props;
     const [form] = Form.useForm();
     const [processList, setProcessList] = useState<ProcessList[]>([]);
 
     useEffect(() => {
-        const p = [
-            {
-                id: 0,
-                name: "开题报告",
-            },
-            {
-                id: 1,
-                name: "任务书",
-            },
-            {
-                id: 2,
-                name: "中期报告",
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-            },
-        ];
-        setProcessList(p);
+        getProcessList();
     }, []);
+
+    useEffect(() => {
+        form.setFieldsValue({
+            ...filterMsg,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterMsg]);
+
+    const getProcessList = async () => {
+        const res: any = await axios.get('/api/util/get_process');
+        const { process } = res;
+
+        setProcessList(process);
+    };
 
     const handleClickReset = () => {
         form.resetFields();

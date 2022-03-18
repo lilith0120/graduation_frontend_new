@@ -33,6 +33,7 @@ http.interceptors.response.use(
             switch (err.response.status) {
                 case 401:
                     localStorage.clear();
+                    window.location.href = "/";
             }
         }
         return Promise.reject(err)

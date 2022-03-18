@@ -9,7 +9,7 @@ import StudentMessage from "../../components/student-message";
 import TeacherMessage from "../../components/teacher-message";
 
 const BasicMessage = () => {
-    const [role, setRole] = useState(roles.STUDENT);
+    const [role, setRole] = useState<number>();
     const [roleMessage, setRoleMessage] = useState();
 
     useEffect(() => {

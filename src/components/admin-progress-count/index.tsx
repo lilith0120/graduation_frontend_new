@@ -3,10 +3,11 @@ import ReactEcharts from 'echarts-for-react';
 import { useEffect, useRef, useState } from 'react';
 import AdminEchartOption from '../../config/admin-echarts';
 import style from './admin-progress-count.module.css';
+import axios from '../../http';
 
 const AdminProgressCount = () => {
     const echartsRef = useRef<any>();
-    const [grade, setGrade] = useState("全部");
+    const [grade, setGrade] = useState("-1");
     const [gradeList, setGradeList] = useState<string[]>([]);
 
     useEffect(() => {
@@ -15,30 +16,21 @@ const AdminProgressCount = () => {
 
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [grade]);
 
-    const fetchData = () => {
-        const data = [
-            { value: 1048, name: '随便整一点11111111111111' },
-            { value: 735, name: 'Direct' },
-            { value: 580, name: 'Email' },
-            { value: 484, name: 'Union Ads' },
-            { value: 100, name: 'Video Ads' },
-            { value: 200, name: 'part1' },
-            { value: 300, name: 'part2' },
-            { value: 400, name: 'part3' },
-            { value: 500, name: 'part4' },
-            { value: 600, name: 'part5' },
-        ];
-
-        AdminEchartOption.series[0].data = data;
+    const fetchData = async () => {
+        const res: any = await axios.get(`/api/admin/process/count/${grade}`);
+        const { count } = res;
+        AdminEchartOption.series[0].data = count;
         const chart = echartsRef.current.getEchartsInstance();
         chart.setOption(AdminEchartOption);
     };
 
-    const getGradeList = () => {
-        const gl = ["2016", "2017", "2018"];
-        setGradeList(gl);
+    const getGradeList = async () => {
+        const res: any = await axios.get('/api/util/get_grade');
+        const { grades } = res;
+        setGradeList(grades);
     };
 
     const handleChangeSelect = (value: any) => {
@@ -49,7 +41,7 @@ const AdminProgressCount = () => {
         <div className={style.echarts}>
             <Space className={style.select}>
                 <span>选择年级:</span>
-                <Select defaultValue="全部" style={{ width: 150 }}
+                <Select style={{ width: 150 }}
                     value={grade}
                     onChange={handleChangeSelect}>
                     <Select.Option value="-1">全部</Select.Option>

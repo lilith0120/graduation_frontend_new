@@ -7,7 +7,7 @@ import TeacherProgressCount from "../../components/teacher-progress-count";
 import AdminProgressCount from "../../components/admin-progress-count";
 
 const ProgressCount = () => {
-    const [role, setRole] = useState(roles.STUDENT);
+    const [role, setRole] = useState<number>();
 
     useEffect(() => {
         let userRole: any = localStorage.getItem("role") ?? roles.STUDENT;

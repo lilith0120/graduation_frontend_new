@@ -2,35 +2,41 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Space, Descriptions } from 'antd';
 import style from '../../../assets/styles/student-list/detail.module.css';
+import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
 
 const TeacherDetail = () => {
     const params = useParams();
     const navigate = useNavigate();
-    const [teacherId, setTeacherId] = useState("-1");
+    const [teacherId, setTeacherId] = useState(-1);
     const [teacherDetail, setTeacherDetail] = useState<TeacherData>({
-        name: "", sex: "", email: "",
+        name: "", sex: "", User: { email: "" },
     });
 
     useEffect(() => {
         const { id }: any = params;
         if (id) {
-            setTeacherId(id);
+            setTeacherId(parseInt(id));
         } else {
             const path = window.location.pathname.split('/');
             const ti: any = path[path.length - 1];
-            setTeacherId(ti);
+            setTeacherId(parseInt(ti));
         }
-
-        const t = {
-            name: '行露',
-            sex: "女",
-            email: "3428098215@qq.com",
-        };
-        setTeacherDetail(t);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        if (teacherId !== -1) {
+            fetchData();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [teacherId]);
+
+    const fetchData = async () => {
+        const res: any = await axios.get(`/api/admin/show_teacher/${teacherId}`);
+        setTeacherDetail(res);
+    };
 
     const handleClickBack = () => {
         navigate(-1);
@@ -65,10 +71,10 @@ const TeacherDetail = () => {
                         {teacherDetail.name}
                     </Descriptions.Item>
                     <Descriptions.Item label="性别">
-                        {teacherDetail.sex}
+                        {teacherDetail.sex ? "女" : "男"}
                     </Descriptions.Item>
                     <Descriptions.Item label="邮箱">
-                        {teacherDetail.email}
+                        {teacherDetail.User.email}
                     </Descriptions.Item>
                 </Descriptions>
             </div>

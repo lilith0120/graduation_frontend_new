@@ -106,7 +106,7 @@ const StudentFilter = (props: any) => {
                 <Form className={style.filter_form} form={form} layout="inline">
                     <Row gutter={[24, 14]}>
                         <Col span={6}>
-                            <Form.Item label="学号" name="student_id">
+                            <Form.Item label="学号" name="user_id">
                                 <Input
                                     placeholder="请输入学号" allowClear />
                             </Form.Item>

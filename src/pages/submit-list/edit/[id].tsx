@@ -118,7 +118,7 @@ const Edit = () => {
 
         const res: any = await uploadFileData(fileData);
         if (!res) {
-            message.success('保存失败!');
+            message.error('保存失败!');
             return;
         }
 
