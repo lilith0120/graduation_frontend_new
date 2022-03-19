@@ -5,6 +5,7 @@ import {
     ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import style from '../../../assets/styles/submit-list/edit.module.css';
+import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
 
@@ -12,7 +13,7 @@ const StudentEdit = () => {
     const params = useParams();
     const navigate = useNavigate();
     const [form] = Form.useForm();
-    const [studentId, setStudentId] = useState("-1");
+    const [studentId, setStudentId] = useState(-1);
     const [gradeList, setGradeList] = useState<string[]>([]);
     const [professionList, setProfessionList] = useState<TeacherList[]>([]);
     const [teacherList, setTeacherList] = useState<TeacherList[]>([]);
@@ -20,11 +21,11 @@ const StudentEdit = () => {
     useEffect(() => {
         const { id }: any = params;
         if (id) {
-            setStudentId(id);
+            setStudentId(parseInt(id));
         } else {
             const path = window.location.pathname.split('/');
             const si: any = path[path.length - 1];
-            setStudentId(si);
+            setStudentId(parseInt(si));
         }
 
         getGradeList();
@@ -34,66 +35,44 @@ const StudentEdit = () => {
     }, []);
 
     useEffect(() => {
-        if (studentId !== "-1") {
+        if (studentId !== -1) {
             fetchData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [studentId]);
 
     const fetchData = async () => {
-        console.log(studentId);
+        const res: any = await axios.get(`/api/admin/show_student/${studentId}`);
+        const { name, sex, ProfessionId, grade, User: { email, user_id }, TeacherId } = res;
         const s = {
-            student_id: studentId,
-            name: "九歌",
-            sex: "1",
-            profession: 0,
-            grade: "2018",
-            email: "1131155106@qq.com",
-            teacher_id: 1,
+            student_id: user_id,
+            name,
+            sex: sex.toString(),
+            profession_id: ProfessionId,
+            grade,
+            email,
+            teacher_id: TeacherId,
         };
 
         form.setFieldsValue(s);
     };
 
     const getGradeList = async () => {
-        const g = ["2016", "2017", "2018"];
-        setGradeList(g);
+        const res: any = await axios.get('/api/util/get_grade');
+        const { grades } = res;
+        setGradeList(grades);
     };
 
     const getProfessionList = async () => {
-        const pl = [
-            {
-                id: 0,
-                name: "软件工程",
-            },
-            {
-                id: 1,
-                name: "计算机类",
-            },
-            {
-                id: 2,
-                name: "信息安全",
-            },
-        ];
-        setProfessionList(pl);
+        const res: any = await axios.get('/api/util/get_profession');
+        const { professions } = res;
+        setProfessionList(professions);
     };
 
     const getTeacherList = async () => {
-        const tl = [
-            {
-                id: 0,
-                name: "行露",
-            },
-            {
-                id: 1,
-                name: "天问",
-            },
-            {
-                id: 2,
-                name: "小皮",
-            },
-        ];
-        setTeacherList(tl);
+        const res: any = await axios.get('/api/util/get_teacher');
+        const { teachers } = res;
+        setTeacherList(teachers);
     };
 
     const handleClickBack = () => {
@@ -110,9 +89,21 @@ const StudentEdit = () => {
         await form.validateFields();
 
         const fileData = form.getFieldsValue();
-        console.log(fileData);
+        const res = await updateStudent(fileData);
+        if (!res) {
+            message.error("保存失败");
+
+            return;
+        }
+
         message.success('保存成功!');
         navigate(`/student-list/detail/${studentId}`, { replace: true });
+    };
+
+    const updateStudent = async (data: any) => {
+        return await axios.patch(`/api/admin/edit_student/${studentId}`, {
+            form: data,
+        });
     };
 
     return (

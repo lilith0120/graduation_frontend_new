@@ -50,12 +50,12 @@ const StudentList = () => {
     }, [pageSize, currentPage, filterMsg, role]);
 
     const fetchDataByAdmin = async () => {
-        const { user_id, name, grade, sex, profession_id, teacher_id } = filterMsg;
+        const { student_id, name, grade, sex, profession_id, teacher_id } = filterMsg;
         const res: any = await axios.post('/api/student/all', {
             size: pageSize,
             current: currentPage,
             search: {
-                user_id,
+                student_id,
                 name,
                 grade,
                 sex,
@@ -94,7 +94,6 @@ const StudentList = () => {
     };
 
     const searchSubmitList = (msg: any) => {
-        console.log(msg);
         setFilterMsg(msg);
     };
 

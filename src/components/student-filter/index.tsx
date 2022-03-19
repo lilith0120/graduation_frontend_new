@@ -2,13 +2,14 @@ import { Form, Input, Button, Select, Row, Col, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import style from './student-filter.module.css';
 import roles from '../../config/role';
+import axios from '../../http';
 
 import LabelHeader from '../label-header';
 
 const StudentFilter = (props: any) => {
     const { searchItem } = props;
     const [form] = Form.useForm();
-    const [role, setRole] = useState(roles.TEACHER);
+    const [role, setRole] = useState<number>();
     const [processList, setProcessList] = useState<ProcessList[]>([]);
     const [gradeList, setGradeList] = useState<string[]>([]);
     const [professionList, setProfessionList] = useState<ProcessList[]>([]);
@@ -20,73 +21,37 @@ const StudentFilter = (props: any) => {
     }, []);
 
     useEffect(() => {
-        getProcessList();
         getGradeList();
-        getProfessionList();
-        getTeacherList();
-    }, []);
+        if (role === roles.TEACHER) {
+            getProcessList();
+        } else if (role === roles.ADMIN) {
+            getProfessionList();
+            getTeacherList();
+        }
+    }, [role]);
 
     const getProcessList = async () => {
-        const p = [
-            {
-                id: 0,
-                name: "开题报告",
-            },
-            {
-                id: 1,
-                name: "任务书",
-            },
-            {
-                id: 2,
-                name: "中期报告",
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-            },
-        ];
-        setProcessList(p);
+        const res: any = await axios.get('/api/util/get_process');
+        const { process } = res;
+        setProcessList(process);
     };
 
     const getGradeList = async () => {
-        const gl = ["2016", "2017", "2018"];
-        setGradeList(gl);
+        const res: any = await axios.get('/api/util/get_grade');
+        const { grades } = res;
+        setGradeList(grades);
     };
 
     const getProfessionList = async () => {
-        const pl = [
-            {
-                id: 0,
-                name: "软件工程",
-            },
-            {
-                id: 1,
-                name: "计算机类",
-            },
-            {
-                id: 2,
-                name: "信息安全",
-            },
-        ];
-        setProfessionList(pl);
+        const res: any = await axios.get('/api/util/get_profession');
+        const { professions } = res;
+        setProfessionList(professions);
     };
 
     const getTeacherList = async () => {
-        const tl = [
-            {
-                id: 0,
-                name: "天问",
-            },
-            {
-                id: 1,
-                name: "行露",
-            },
-            {
-                id: 2,
-                name: "小皮",
-            },
-        ];
-        setTeacherList(tl);
+        const res: any = await axios.get('/api/util/get_teacher');
+        const { teachers } = res;
+        setTeacherList(teachers);
     };
 
     const handleClickReset = () => {
@@ -106,7 +71,7 @@ const StudentFilter = (props: any) => {
                 <Form className={style.filter_form} form={form} layout="inline">
                     <Row gutter={[24, 14]}>
                         <Col span={6}>
-                            <Form.Item label="学号" name="user_id">
+                            <Form.Item label="学号" name="student_id">
                                 <Input
                                     placeholder="请输入学号" allowClear />
                             </Form.Item>
@@ -163,7 +128,12 @@ const StudentFilter = (props: any) => {
                                     <Col span={6}>
                                         <Form.Item label="专业" name="profession_id">
                                             <Select
+                                                showSearch
                                                 placeholder="请选择专业"
+                                                optionFilterProp="children"
+                                                filterOption={(input: any, option: any) =>
+                                                    option.children.indexOf(input) >= 0
+                                                }
                                                 allowClear>
                                                 {
                                                     professionList.map((item, index) => (
@@ -178,7 +148,12 @@ const StudentFilter = (props: any) => {
                                     <Col span={6}>
                                         <Form.Item label="指导老师" name="teacher_id">
                                             <Select
+                                                showSearch
                                                 placeholder="请选择指导老师"
+                                                optionFilterProp="children"
+                                                filterOption={(input: any, option: any) =>
+                                                    option.children.indexOf(input) >= 0
+                                                }
                                                 allowClear>
                                                 {
                                                     teacherList.map((item, index) => (

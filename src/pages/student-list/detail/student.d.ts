@@ -1,9 +1,16 @@
 interface StudentData {
     name: string,
     grade: string,
-    profession: string,
+    Profession: {
+        name: string,
+    },
     sex: string,
-    email: string,
-    teacher_name?: string,
+    User: {
+        email: string,
+        user_id: string,
+    },
+    Teacher?: {
+        name: string,
+    },
     stage?: string,
 }

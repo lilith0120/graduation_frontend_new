@@ -9,11 +9,11 @@ import LabelHeader from "../../../components/label-header";
 const StudentStageDetail = () => {
     const params = useParams();
     const navigate = useNavigate();
-    const [studentId, setStudentId] = useState("-1");
+    const [studentId, setStudentId] = useState(-1);
     const [selectOption, setSelectOption] = useState<any[]>([]);
     const [select, setSelect] = useState<any>();
     const [studentDetail, setStudentDetail] = useState<StudentData>({
-        name: "", grade: "", profession: "", sex: "", email: "", stage: "",
+        name: "", grade: "", Profession: { name: "" }, sex: "", User: { email: "", user_id: "" }, stage: "",
     });
     const [fileDetail, setFileDetail] = useState<FileData>({
         file_id: -1, file_name: "", status: 0, createdAt: "", Stage: { name: "" },
@@ -22,11 +22,11 @@ const StudentStageDetail = () => {
     useEffect(() => {
         const { id }: any = params;
         if (id) {
-            setStudentId(id);
+            setStudentId(parseInt(id));
         } else {
             const path = window.location.pathname.split('/');
             const si: any = path[path.length - 1];
-            setStudentId(si);
+            setStudentId(parseInt(si));
         }
 
         getStudentDetail();
@@ -40,9 +40,14 @@ const StudentStageDetail = () => {
             name: 'John',
             grade: "2018",
             sex: "女",
-            profession: "软件工程",
+            Profession: {
+                name: "软件工程"
+            },
             teacher_name: "行露",
-            email: "3428098215@qq.com",
+            User: {
+                user_id: "",
+                email: "3428098215@qq.com",
+            },
             stage: "毕业设计论文",
         };
         setStudentDetail(s);
@@ -111,7 +116,7 @@ const StudentStageDetail = () => {
                         }}
                         contentStyle={{ fontSize: "16px" }} bordered>
                         <Descriptions.Item label="学号">
-                            {studentId}
+                            {studentDetail.User.user_id}
                         </Descriptions.Item>
                         <Descriptions.Item label="学生姓名">
                             {studentDetail.name}
@@ -123,10 +128,10 @@ const StudentStageDetail = () => {
                             {studentDetail.grade}
                         </Descriptions.Item>
                         <Descriptions.Item label="专业">
-                            {studentDetail.profession}
+                            {studentDetail.Profession.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="邮箱">
-                            {studentDetail.email}
+                            {studentDetail.User.email}
                         </Descriptions.Item>
                         <Descriptions.Item label="毕业设计阶段">
                             {studentDetail.stage}
