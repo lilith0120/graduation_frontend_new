@@ -12,5 +12,7 @@ interface StudentData {
     Teacher?: {
         name: string,
     },
-    stage?: string,
+    Stage?: {
+        name: string,
+    },
 }

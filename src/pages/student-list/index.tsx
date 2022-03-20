@@ -9,18 +9,14 @@ import StudentFilter from "../../components/student-filter";
 
 const StudentList = () => {
     const navigate = useNavigate();
-    const [role, setRole] = useState<number>();
+    const userType = localStorage.getItem("role") ?? roles.TEACHER.toString();
+    const role = parseInt(userType);
     const [fileData, setFileData] = useState<StudentListData[]>([]);
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [filterMsg, setFilterMsg] = useState<any>({});
     const [selectedList, setSelectedList] = useState([]);
-
-    useEffect(() => {
-        let userRole: any = localStorage.getItem("role") ?? roles.TEACHER;
-        setRole(parseInt(userRole));
-    }, []);
 
     useEffect(() => {
         const ps = sessionStorage.getItem("pageSize");
@@ -70,12 +66,12 @@ const StudentList = () => {
     };
 
     const fetchDataByTeacher = async () => {
-        const { user_id, name, grade, sex, stage_id } = filterMsg;
+        const { student_id, name, grade, sex, stage_id } = filterMsg;
         const res: any = await axios.post('/api/teacher/all_student', {
             size: pageSize,
             current: currentPage,
             search: {
-                user_id,
+                student_id,
                 name,
                 grade,
                 sex,

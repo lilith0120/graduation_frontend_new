@@ -90,6 +90,11 @@ const Edit = () => {
             info.file.url = url;
 
             setFile(info.file);
+            if (!form.getFieldValue("file_name")) {
+                form.setFieldsValue({
+                    file_name: info.file.name.substring(0, info.file.name.lastIndexOf(".")),
+                });
+            }
         } else if (status === 'error') {
             message.error(`${info.file.name}上传失败`);
         };

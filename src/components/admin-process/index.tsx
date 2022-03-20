@@ -97,7 +97,7 @@ const AdminProcess = () => {
             if (node.key === -1) {
                 await addProcess(node);
             } else {
-                await updatePrcess(node);
+                await updateProcess(node);
             }
         }
 
@@ -123,7 +123,7 @@ const AdminProcess = () => {
         setProcessData([...processData]);
     };
 
-    const updatePrcess = async (node: any) => {
+    const updateProcess = async (node: any) => {
         const res = await axios.patch(`/api/admin/process/edit/${node.key}`, {
             title: node.title,
         });

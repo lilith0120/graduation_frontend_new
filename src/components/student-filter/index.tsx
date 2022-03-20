@@ -9,16 +9,12 @@ import LabelHeader from '../label-header';
 const StudentFilter = (props: any) => {
     const { searchItem } = props;
     const [form] = Form.useForm();
-    const [role, setRole] = useState<number>();
+    const userType = localStorage.getItem("role") ?? roles.TEACHER.toString();
+    const role = parseInt(userType);
     const [processList, setProcessList] = useState<ProcessList[]>([]);
     const [gradeList, setGradeList] = useState<string[]>([]);
     const [professionList, setProfessionList] = useState<ProcessList[]>([]);
     const [teacherList, setTeacherList] = useState<TeacherList[]>([]);
-
-    useEffect(() => {
-        let userRole: any = localStorage.getItem("role") ?? roles.TEACHER;
-        setRole(parseInt(userRole));
-    }, []);
 
     useEffect(() => {
         getGradeList();
@@ -33,7 +29,14 @@ const StudentFilter = (props: any) => {
     const getProcessList = async () => {
         const res: any = await axios.get('/api/util/get_process');
         const { process } = res;
-        setProcessList(process);
+        const processList = [
+            {
+                id: "-1",
+                name: "未开始",
+            },
+            ...process,
+        ];
+        setProcessList(processList);
     };
 
     const getGradeList = async () => {

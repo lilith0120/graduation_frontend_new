@@ -1,95 +1,47 @@
 import { Steps, Descriptions, Tag, Button, Modal } from "antd";
 import { useEffect, useState } from "react";
 import style from './teacher-progress-count.module.css';
+import axios from '../../http';
 
 import StudentDetailModal from "../student-detail-modal";
 
 const TeacherProgressCount = () => {
-    const [current, setCurrent] = useState(0);
+    const [current, setCurrent] = useState(-1);
     const [stageList, setStageList] = useState<TeacherStage[]>([]);
     const [totalNumber, setTotalNumber] = useState(0);
     const [showPushModal, setShowPushModal] = useState(false);
     const [showFinishModal, setShowFinishModal] = useState(false);
 
     useEffect(() => {
-        const s = [
-            {
-                id: 0,
-                name: "开题报告",
-                begin_at: "2022.02.11 19:39:21",
-                end_at: "2022.02.13 20:39:21",
-                status: "finish",
-                pushNumber: 10,
-                finishNumber: 7,
-            },
-            {
-                id: 1,
-                name: "任务书",
-                begin_at: "2022.02.13 21:39:21",
-                end_at: "2022.02.15 18:39:21",
-                status: "finish",
-                pushNumber: 10,
-                finishNumber: 10,
-            },
-            {
-                id: 2,
-                name: "中期报告",
-                begin_at: "2022.02.15 19:39:21",
-                end_at: "2022.02.17 20:39:21",
-                status: "process",
-                pushNumber: 5,
-                finishNumber: 3,
-            },
-            {
-                id: 3,
-                name: "毕业设计论文",
-                status: "wait",
-            },
-            {
-                id: 4,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 5,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 6,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 7,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-            {
-                id: 8,
-                name: "毕业设计论文",
-                begin_at: "2022.02.23 21:39:21",
-                end_at: "2022.02.27 20:39:21",
-                status: "wait",
-            },
-        ];
-        setStageList(s);
-        s.forEach((item) => {
-            if (item.status === "process") {
-                setCurrent(item.id);
-            }
-        });
-
-        setTotalNumber(10);
+        fetchData();
     }, []);
+
+    useEffect(() => {
+        if (current >= 0) {
+            sessionStorage.setItem("current", current.toString());
+        }
+    }, [current]);
+
+    const fetchData = async () => {
+        const res: any = await axios.get('/api/teacher/progress');
+        const { studentNum, progress } = res;
+        setTotalNumber(studentNum);
+        if (!progress) {
+            return;
+        }
+
+        setStageList(progress);
+        const cur = sessionStorage.getItem("current");
+        if (cur) {
+            setCurrent(parseInt(cur));
+        } else {
+            progress.forEach((item: any, index: any) => {
+                if (item.status === "process") {
+                    setCurrent(index);
+                }
+            });
+        }
+    };
 
     const handleChangeCurrent = (cur: any) => {
         setCurrent(cur);
@@ -159,7 +111,7 @@ const TeacherProgressCount = () => {
                 footer={null}
                 width={1000}
                 onCancel={handleCancelPushModal}>
-                <StudentDetailModal modalType={"push"} stageId={stageList[current]?.id} />
+                <StudentDetailModal modalType={"push"} stageId={stageList[current]?.id} stageName={`${stageList[current]?.name}阶段`} />
             </Modal>
             <Modal className={style.detail_modal}
                 title={`学生完成情况 (${stageList[current]?.name}阶段)`}
@@ -167,7 +119,7 @@ const TeacherProgressCount = () => {
                 footer={null}
                 width={1000}
                 onCancel={handleCancelFinishModal}>
-                <StudentDetailModal modalType={"finish"} stageId={stageList[current]?.id} />
+                <StudentDetailModal modalType={"finish"} stageId={stageList[current]?.id} stageName={`${stageList[current]?.name}阶段`} />
             </Modal>
         </div>
     )

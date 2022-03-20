@@ -1,90 +1,53 @@
-import { List, Button, Tag } from 'antd';
+import { List, Button, Tag, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import JSZip from 'jszip';
+import FileSaver from 'file-saver';
 import style from './student-detail-modal.module.css';
 import { reviewStatus } from '../../config/review-status';
+import axios from '../../http';
+import trueAxios from 'axios';
 
 import LabelHeader from "../label-header";
 
 const StudentDetailModal = (props: any) => {
     const navigate = useNavigate();
-    const { modalType, stageId } = props;
+    const { modalType, stageId, stageName } = props;
     const [detailList, setDetailList] = useState<StudentDetail[]>([]);
 
     useEffect(() => {
-        console.log(stageId);
-        const dl = [
-            {
-                id: "111801429",
-                name: "九歌",
-                isPush: true,
-                isFinish: true,
-                push_status: "审核通过",
-                file_id: 0,
-            },
-            {
-                id: "11111111",
-                name: "person1",
-                isPush: true,
-                isFinish: false,
-                push_status: "审核驳回",
-                file_id: 1,
-            },
-            {
-                id: "22222222",
-                name: "person2",
-                isPush: true,
-                isFinish: true,
-                push_status: "审核通过",
-                file_id: 2,
-            },
-            {
-                id: "33333333",
-                name: "person3",
-                isPush: false,
-                isFinish: false,
-            },
-            {
-                id: "44444444",
-                name: "person4",
-                isPush: true,
-                isFinish: true,
-                push_status: "未审核",
-                file_id: 3,
-            },
-            {
-                id: "55555555",
-                name: "person5",
-                isPush: true,
-                isFinish: false,
-                push_status: "审核中",
-                file_id: 4,
-            },
-            {
-                id: "666666666",
-                name: "person6",
-                isPush: false,
-                isFinish: false,
-            },
-        ];
-        setDetailList(dl);
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stageId]);
 
-    const handleClickDownload = (fileId = -1) => {
-        if (fileId === -1) {
-            const fileIds: number[] = [];
+    const fetchData = async () => {
+        const res: any = await axios.get(`/api/teacher/progress_detail/${stageId}`);
+        const { progressDetail } = res;
+        setDetailList(progressDetail);
+    };
+
+    const handleClickDownload = async (file: any) => {
+        const fileIds: number[] = [];
+        const files = [];
+        if (file instanceof Array) {
             detailList.map((item) => {
                 if (item.file_id !== undefined && item.file_id !== null) {
-                    fileIds.push(item.file_id);
+                    files.push(item);
+                    if (item.push_status === "未审核") {
+                        fileIds.push(item.file_id);
+                    }
                 }
 
                 return item;
             });
-
-            console.log("download: ", fileIds);
         } else {
-            console.log("download: ", fileId);
+            if (file.push_status === "未审核") {
+                fileIds.push(file.file_id);
+            }
+            files.push(file);
         }
+
+        await downloadFile(fileIds, files);
     };
 
     const handleClickDetail = (id: any) => {
@@ -92,7 +55,59 @@ const StudentDetailModal = (props: any) => {
     };
 
     const handleClickReview = (fileId: any) => {
-        console.log("go to: ", fileId);
+        navigate(`/review-list/detail/${fileId}`);
+    };
+
+    const downloadFile = async (fileIds: any, files: any) => {
+        const res = await axios.patch('/api/teacher/review/download/file', {
+            fileIds,
+        });
+        if (!res) {
+            message.error("下载失败");
+
+            return;
+        }
+
+        const fileUrls = [];
+        for (let key in files) {
+            let url = {
+                url: files[key].file_url,
+                file_name: files[key].file_name,
+                file_format: files[key].file_url.substr(files[key].file_url.lastIndexOf(".") + 1),
+            }
+            fileUrls.push(url);
+            if (files[key].push_status === "未审核") {
+                files[key].push_status = "审核中";
+            }
+        }
+        if (files.length === 1) {
+            FileSaver.saveAs(fileUrls[0].url, `${fileUrls[0].file_name}.${fileUrls[0].file_format}`);
+        } else {
+            await zipFile(fileUrls);
+        }
+        setDetailList([...detailList]);
+    };
+
+    const zipFile = async (urls: any) => {
+        try {
+            const zip = new JSZip();
+            const files = zip.folder(`${stageName}`);
+            await Promise.all(urls.map(async (item: any) => {
+                const { data }: any = await getFile(item.url);
+                const fileName = `${item.file_name}.${item.file_format}`;
+                files?.file(fileName, data, { binary: true });
+            }));
+            const content = await zip.generateAsync({ type: 'blob' });
+            FileSaver.saveAs(content, `${stageName}.zip`);
+        } catch (err) {
+            message.error("下载失败");
+        }
+    };
+
+    const getFile = async (url: any) => {
+        return await trueAxios.get(url, {
+            responseType: "blob",
+        });
     };
 
     return (
@@ -102,7 +117,7 @@ const StudentDetailModal = (props: any) => {
                     <LabelHeader label={modalType === "push" ? "已提交" : "已完成"} />
                     {
                         modalType === "push" &&
-                        <Button type="primary" onClick={() => handleClickDownload()}>
+                        <Button type="primary" onClick={() => handleClickDownload(detailList)}>
                             全部下载
                         </Button>
                     }
@@ -127,7 +142,7 @@ const StudentDetailModal = (props: any) => {
                                                 {item.push_status}
                                             </Tag>,
                                             <Button key="item_download" type="link" size="small"
-                                                onClick={() => handleClickDownload(item.file_id)}>
+                                                onClick={() => handleClickDownload(item)}>
                                                 下载文件
                                             </Button>,
                                             <Button key="item_review" type="link" size="small"
@@ -140,7 +155,7 @@ const StudentDetailModal = (props: any) => {
                                 <List.Item.Meta
                                     title={
                                         <Button type="link" onClick={() => handleClickDetail(item.id)}>
-                                            {`${item.name} (${item.id})`}
+                                            {`${item.name} (${item.User.user_id})`}
                                         </Button>
                                     }
                                 />
@@ -160,7 +175,7 @@ const StudentDetailModal = (props: any) => {
                                 <List.Item.Meta
                                     title={
                                         <Button type="link" onClick={() => handleClickDetail(item.id)}>
-                                            {`${item.name} (${item.id})`}
+                                            {`${item.name} (${item.User.user_id})`}
                                         </Button>
                                     }
                                 />

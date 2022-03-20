@@ -1,8 +1,9 @@
 import { Table, Button, Tag, Tooltip, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { reviewStatus } from '../../config/review-status';
+import { getType } from '../../config/review-status';
 import style from './review-tab-content.module.css';
+import axios from '../../http';
 
 const ReviewTabContent = (props: any) => {
     const { status } = props;
@@ -17,54 +18,14 @@ const ReviewTabContent = (props: any) => {
     }, []);
 
     const fetchData = async (page = 1, size = 10) => {
-        console.log(status);
-        console.log(page, size);
-        const rl = [
-            {
-                id: 1,
-                name: '吃饭吃饭吃饭吃饭吃饭吃饭吃饭吃饭吃饭吃饭',
-                student_name: 'Brown',
-                submit_time: "2022-02-25 14:40:23",
-                stage: "开题报告",
-                status: "未审核",
-            },
-            {
-                id: 2,
-                name: 'Jim',
-                student_name: 'Green',
-                submit_time: "2022-02-25 14:40:23",
-                stage: "开题报告",
-                status: "审核中",
-            },
-            {
-                id: 3,
-                name: 'Joe',
-                student_name: 'Black',
-                submit_time: "2022-02-25 14:40:23",
-                stage: "开题报告",
-                status: "审核通过",
-            },
-            {
-                id: 4,
-                name: 'Joe1',
-                student_name: 'Black1',
-                submit_time: "2022-02-25 14:40:23",
-                stage: "开题报告",
-                status: "审核驳回",
-            },
-        ];
-        for (let i = 5; i < 101; i++) {
-            rl.push({
-                id: i,
-                name: 'Joe1',
-                student_name: 'Black1',
-                submit_time: "2022-02-25 14:40:23",
-                stage: "开题报告",
-                status: "审核中",
-            });
-        }
-        setReviewList(rl);
-        setTotalItems(100);
+        const res: any = await axios.post('/api/teacher/review/all', {
+            size,
+            current: page,
+            status,
+        });
+        const { totalNums, reviews } = res;
+        setReviewList(reviews);
+        setTotalItems(totalNums);
     };
 
     const handleChangePage = async (page: any, size: any) => {
@@ -91,7 +52,7 @@ const ReviewTabContent = (props: any) => {
                 }
                 scroll={{ y: 400 }}>
                 <Table.Column title="ID" dataIndex="id" width={80} />
-                <Table.Column title="文件名" dataIndex="name" width={280}
+                <Table.Column title="文件名" dataIndex="file_name" width={280}
                     render={(text) => (
                         <div className={style.table_text}>
                             <Tooltip placement="topLeft" title={text}>
@@ -100,26 +61,26 @@ const ReviewTabContent = (props: any) => {
                         </div>
                     )} />
                 <Table.Column title="提交学生" dataIndex="student_name" />
-                <Table.Column title="提交阶段" dataIndex="stage" />
+                <Table.Column title="提交阶段" dataIndex="stage_name" />
                 <Table.Column title="审核状态" dataIndex="status"
                     render={(text) => {
                         let color = "default";
 
-                        if (reviewStatus[text] === 1) {
+                        if (text === 1) {
                             color = "processing";
-                        } else if (reviewStatus[text] === 2) {
+                        } else if (text === 2) {
                             color = "success";
-                        } else if (reviewStatus[text] === 3) {
+                        } else if (text === 3) {
                             color = "error";
                         };
 
-                        return <Tag color={color}>{text}</Tag>
+                        return <Tag color={color}>{getType(text)}</Tag>
                     }} />
-                <Table.Column title="提交时间" dataIndex="submit_time" />
+                <Table.Column title="提交时间" dataIndex="createdAt" />
                 <Table.Column title="操作"
                     render={(text, record: any) => {
                         const fileStatus = record.status;
-                        if (reviewStatus[fileStatus] === 2 || reviewStatus[fileStatus] === 3) {
+                        if (fileStatus === 2 || fileStatus === 3) {
                             return <Button type="primary" size="small"
                                 onClick={() => handleClickReview(record.id)}>
                                 查看详细

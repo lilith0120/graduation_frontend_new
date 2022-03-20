@@ -34,6 +34,10 @@ http.interceptors.response.use(
                 case 401:
                     localStorage.clear();
                     window.location.href = "/";
+                    message.error("用户登陆过期，请重新登录");
+                    break;
+                default:
+                    message.error(err.response.data.msg);
             }
         }
         return Promise.reject(err)

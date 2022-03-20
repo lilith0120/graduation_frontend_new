@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import roles from "../../config/role";
 
 import LabelHeader from "../../components/label-header";
@@ -7,12 +6,8 @@ import TeacherProgressCount from "../../components/teacher-progress-count";
 import AdminProgressCount from "../../components/admin-progress-count";
 
 const ProgressCount = () => {
-    const [role, setRole] = useState<number>();
-
-    useEffect(() => {
-        let userRole: any = localStorage.getItem("role") ?? roles.STUDENT;
-        setRole(parseInt(userRole));
-    }, []);
+    const userType = localStorage.getItem("role") ?? roles.STUDENT.toString();
+    const role = parseInt(userType);
 
     return (
         <div>

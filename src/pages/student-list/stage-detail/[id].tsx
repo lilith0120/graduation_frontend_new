@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button, Descriptions, Tag, Space, Select } from 'antd';
 import style from '../../../assets/styles/student-list/stage-detail.module.css';
 import { getType } from '../../../config/review-status';
+import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
 
@@ -13,10 +14,10 @@ const StudentStageDetail = () => {
     const [selectOption, setSelectOption] = useState<any[]>([]);
     const [select, setSelect] = useState<any>();
     const [studentDetail, setStudentDetail] = useState<StudentData>({
-        name: "", grade: "", Profession: { name: "" }, sex: "", User: { email: "", user_id: "" }, stage: "",
+        name: "", grade: "", Profession: { name: "" }, sex: "", User: { email: "", user_id: "" },
     });
     const [fileDetail, setFileDetail] = useState<FileData>({
-        file_id: -1, file_name: "", status: 0, createdAt: "", Stage: { name: "" },
+        id: -1, file_name: "", status: 0, createdAt: "", Stage: { name: "" },
     });
 
     useEffect(() => {
@@ -28,75 +29,72 @@ const StudentStageDetail = () => {
             const si: any = path[path.length - 1];
             setStudentId(parseInt(si));
         }
-
-        getStudentDetail();
-        getFileDetail();
-        getSelectOption();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        if (studentId !== -1) {
+            getStudentDetail();
+            getSelectOption();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [studentId]);
+
+    useEffect(() => {
+        if (select && selectOption.length) {
+            getFileDetail();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [select, selectOption]);
+
     const getStudentDetail = async () => {
-        const s = {
-            name: 'John',
-            grade: "2018",
-            sex: "女",
-            Profession: {
-                name: "软件工程"
-            },
-            teacher_name: "行露",
-            User: {
-                user_id: "",
-                email: "3428098215@qq.com",
-            },
-            stage: "毕业设计论文",
-        };
-        setStudentDetail(s);
+        const res: any = await axios.get(`/api/teacher/show_student/${studentId}`);
+        let student = res;
+        if (!student.Stage) {
+            student = {
+                ...student,
+                Stage: {
+                    name: "未开始",
+                },
+            };
+        }
+        setStudentDetail(student);
     };
 
-    const getFileDetail = async () => {
-        const fd = {
-            file_id: 2,
-            file_name: '111801429_吴寒_福州大学本科生毕业设计（论文）任务书（第二版）',
-            file_detail: '说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢说什么呢',
-            Stage: {
-                name: "开题报告",
-            },
-            status: 1,
-            createdAt: "2022-02-11 19:09:30",
-        };
-        setFileDetail(fd);
+    const getFileDetail = () => {
+        const file = selectOption.find((item) => item.id === select);
+        setFileDetail(file);
     };
 
     const getSelectOption = async () => {
-        const so = [
-            {
-                id: 0,
-                stage: '开题报告',
-                status: '审核通过',
-                time: '2022-02-22 12:00:00',
-            },
-            {
-                id: 1,
-                stage: '任务书',
-                status: '审核通过',
-                time: '2022-02-22 12:00:00',
-            },
-        ];
-        setSelect(so[0].id);
-        setSelectOption(so);
+        const res: any = await axios.get(`/api/teacher/file_list/${studentId}`);
+        const { fileList } = res;
+        if (!fileList.length) {
+            return;
+        }
+
+        let current = fileList[0].id;
+        fileList.filter((item: any) => {
+            if (item.status === 2) {
+                current = item.id;
+            }
+
+            return item;
+        });
+        setSelect(current);
+        setSelectOption(fileList);
     };
 
     const handleClickBack = () => {
         navigate(-1);
     };
 
-    const handleChangeSelect = async (value: any) => {
+    const handleChangeSelect = (value: any) => {
         setSelect(value);
-        await getFileDetail();
     };
 
     const handleClickReview = () => {
-        navigate(`/review-list/detail/${fileDetail.file_id}`);
+        navigate(`/review-list/detail/${fileDetail.id}`);
     };
 
     return (
@@ -122,7 +120,7 @@ const StudentStageDetail = () => {
                             {studentDetail.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="性别">
-                            {studentDetail.sex}
+                            {studentDetail.sex ? "女" : "男"}
                         </Descriptions.Item>
                         <Descriptions.Item label="年级">
                             {studentDetail.grade}
@@ -134,7 +132,7 @@ const StudentStageDetail = () => {
                             {studentDetail.User.email}
                         </Descriptions.Item>
                         <Descriptions.Item label="毕业设计阶段">
-                            {studentDetail.stage}
+                            {studentDetail.Stage?.name}
                         </Descriptions.Item>
                     </Descriptions>
                 </div>
@@ -149,13 +147,13 @@ const StudentStageDetail = () => {
                             {
                                 selectOption.map((item, index) => (
                                     <Select.Option key={index} value={item.id}>
-                                        {`${item.id} -- ${item.stage} -- ${item.status} -- ${item.time}`}
+                                        {`${item.id} -- ${item.Stage.name} -- ${getType(item.status)} -- ${item.createdAt}`}
                                     </Select.Option>
                                 ))
                             }
                         </Select>
                         <Button type="primary" onClick={handleClickReview}
-                            disabled={fileDetail.status === 2 || fileDetail.status === 3 ? true : false}>
+                            disabled={!selectOption.length || (fileDetail?.status === 2 || fileDetail?.status === 3) ? true : false}>
                             审核
                         </Button>
                     </Space>
@@ -176,19 +174,22 @@ const StudentStageDetail = () => {
                             {fileDetail?.file_detail}
                         </Descriptions.Item>
                         <Descriptions.Item label="毕业设计阶段">
-                            {fileDetail.Stage?.name}
+                            {fileDetail?.Stage?.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="提交状态">
-                            <Tag color={
-                                fileDetail.status === 0 ?
-                                    "default" :
-                                    fileDetail.status === 1 ?
-                                        "processing" :
-                                        fileDetail.status === 2 ?
-                                            "success" : "error"
-                            }>
-                                {getType(fileDetail.status)}
-                            </Tag>
+                            {
+                                fileDetail.id > 0 &&
+                                <Tag color={
+                                    fileDetail.status === 0 ?
+                                        "default" :
+                                        fileDetail.status === 1 ?
+                                            "processing" :
+                                            fileDetail.status === 2 ?
+                                                "success" : "error"
+                                }>
+                                    {getType(fileDetail.status)}
+                                </Tag>
+                            }
                         </Descriptions.Item>
                         <Descriptions.Item label="提交时间">
                             {fileDetail?.createdAt}

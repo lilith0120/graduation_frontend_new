@@ -1,5 +1,5 @@
 interface FileData {
-    file_id: number,
+    id: number,
     file_name: string,
     file_url?: string,
     file_detail?: string,

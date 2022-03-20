@@ -1,6 +1,5 @@
 import { Tabs } from 'antd';
 import { useEffect, useState } from "react";
-
 import style from '../../assets/styles/review-list/review-list.module.css';
 
 import LabelHeader from "../../components/label-header";

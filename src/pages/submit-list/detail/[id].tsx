@@ -15,7 +15,7 @@ const Detail = () => {
     const navigate = useNavigate();
     const [fileId, setFileId] = useState(-1);
     const [fileDetail, setFileDetail] = useState<FileData>({
-        file_id: -1, file_name: "", file_url: "", Stage: { name: "" }, status: 0, Teacher: { name: "" }, createdAt: "",
+        id: -1, file_name: "", file_url: "", Stage: { name: "" }, status: 0, Teacher: { name: "" }, createdAt: "",
     });
 
     useEffect(() => {

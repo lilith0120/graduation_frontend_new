@@ -1,12 +1,16 @@
 interface ReviewDetailData {
     id: number,
-    name: string,
-    url: string,
-    student_name: string,
-    stage: string,
-    status: string,
-    submit_time: string,
-    detail: string,
+    file_name: string,
+    file_url: string,
+    Student: {
+        name: string,
+    },
+    Stage: {
+        name: string,
+    },
+    status: number,
+    createdAt: string,
+    file_detail?: string,
     review?: string,
-    review_time?: string,
+    review_at?: string,
 };

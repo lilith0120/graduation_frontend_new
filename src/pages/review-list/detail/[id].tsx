@@ -2,7 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Space, Button, Descriptions, Tag, Modal, Input, notification } from 'antd';
 import style from '../../../assets/styles/review-list/detail.module.css';
-import { reviewStatus } from "../../../config/review-status";
+import { getType } from "../../../config/review-status";
+import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
 
@@ -13,17 +14,17 @@ const ReviewDetail = () => {
     const [showModal, setShowModal] = useState(false);
     const [review, setReview] = useState("");
     const [reviewDetail, setReviewDetail] = useState<ReviewDetailData>({
-        id: -1, name: "", student_name: "", stage: "", status: "", submit_time: "", detail: "", url: "",
+        id: -1, file_name: "", Student: { name: "" }, Stage: { name: "" }, status: -1, createdAt: "", file_url: "",
     });
 
     useEffect(() => {
         const { id }: any = params;
         if (id) {
-            setReviewId(id);
+            setReviewId(parseInt(id));
         } else {
             const path = window.location.pathname.split('/');
             const ri: any = path[path.length - 1];
-            setReviewId(ri);
+            setReviewId(parseInt(ri));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -36,24 +37,13 @@ const ReviewDetail = () => {
     }, [reviewId]);
 
     const fetchData = async () => {
-        console.log(reviewId);
-        const fd = {
-            id: reviewId,
-            url: "https://view.xdocin.com/view/demo.docx",
-            name: 'Joe1',
-            student_name: 'Black1',
-            submit_time: "2022-02-25 14:40:23",
-            stage: "开题报告",
-            status: "审核中",
-            detail: "说什么说什么说什说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么么说什么说么说什么说什么说什么说什么说什么说什么",
-            review: "说什么说什么说什说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么说什么么说什么说么说什么说什么说什么说什么说什么说什么",
-            review_time: "2022-02-25 20:18:00",
-        };
-        setReviewDetail(fd);
+        const res: any = await axios.get(`/api/teacher/review/${reviewId}`);
+        const { file } = res;
+        setReviewDetail(file);
     };
 
     const handleClickBack = () => {
-        navigate(-1);
+        navigate(-2);
     };
 
     const handleClickDownload = () => {
@@ -93,9 +83,9 @@ const ReviewDetail = () => {
                 <Space>
                     <Button onClick={handleClickBack}>返回</Button>
                     {
-                        reviewStatus[reviewDetail.status] === 0 ?
+                        reviewDetail.status === 0 ?
                             <Button type="primary" onClick={handleClickDownload}>下载文件</Button> :
-                            reviewStatus[reviewDetail.status] === 1 ?
+                            reviewDetail.status === 1 ?
                                 <>
                                     <Button danger onClick={() => handleClickCheck(false)}>驳回</Button>
                                     <Button type="primary" onClick={() => handleClickCheck(true)}>通过</Button>
@@ -110,29 +100,29 @@ const ReviewDetail = () => {
                         size="small"
                         column={2}
                         bordered>
-                        <Descriptions.Item label="文件名">{reviewDetail.name}</Descriptions.Item>
-                        <Descriptions.Item label="提交学生">{reviewDetail.student_name}</Descriptions.Item>
-                        <Descriptions.Item label="文件描述" span={2}>{reviewDetail.detail}</Descriptions.Item>
-                        <Descriptions.Item label="提交阶段">{reviewDetail.stage}</Descriptions.Item>
+                        <Descriptions.Item label="文件名">{reviewDetail.file_name}</Descriptions.Item>
+                        <Descriptions.Item label="提交学生">{reviewDetail.Student.name}</Descriptions.Item>
+                        <Descriptions.Item label="文件描述" span={2}>{reviewDetail.file_detail}</Descriptions.Item>
+                        <Descriptions.Item label="提交阶段">{reviewDetail.Stage.name}</Descriptions.Item>
                         <Descriptions.Item label="审核状态">
                             <Tag color={
-                                reviewStatus[reviewDetail.status] === 0 ?
+                                reviewDetail.status === 0 ?
                                     "default" :
-                                    reviewStatus[reviewDetail.status] === 1 ?
+                                    reviewDetail.status === 1 ?
                                         "processing" :
-                                        reviewStatus[reviewDetail.status] === 2 ?
+                                        reviewDetail.status === 2 ?
                                             "success" : "error"
                             }>
-                                {reviewDetail.status}
+                                {getType(reviewDetail.status)}
                             </Tag>
                         </Descriptions.Item>
-                        <Descriptions.Item label="提交时间" span={2}>{reviewDetail.submit_time}</Descriptions.Item>
+                        <Descriptions.Item label="提交时间" span={2}>{reviewDetail.createdAt}</Descriptions.Item>
                         {
-                            (reviewStatus[reviewDetail.status] === 2 ||
-                                reviewStatus[reviewDetail.status] === 3) &&
+                            (reviewDetail.status === 2 ||
+                                reviewDetail.status === 3) &&
                             <>
                                 <Descriptions.Item label="指导教师评论" span={2}>{reviewDetail.review}</Descriptions.Item>
-                                <Descriptions.Item label="评论时间" span={2}>{reviewDetail.review_time}</Descriptions.Item>
+                                <Descriptions.Item label="评论时间" span={2}>{reviewDetail.review_at}</Descriptions.Item>
                             </>
                         }
                     </Descriptions>
@@ -140,7 +130,7 @@ const ReviewDetail = () => {
                 <div className={style.file_viewer}>
                     <iframe className={style.file}
                         title="预览文档"
-                        src={`https://view.xdocin.com/view?src=${reviewDetail.url}`} />
+                        src={`https://view.xdocin.com/view?src=${reviewDetail.file_url}`} />
                 </div>
             </div>
             <Modal title="审核反馈" visible={showModal}

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import style from '../../assets/styles/process.module.css';
 import roles from "../../config/role";
 
@@ -7,12 +6,8 @@ import TeacherProcess from "../../components/teacher-process";
 import AdminProcess from "../../components/admin-process";
 
 const Process = () => {
-    const [role, setRole] = useState<number>();
-
-    useEffect(() => {
-        let userRole: any = localStorage.getItem("role") ?? roles.TEACHER;
-        setRole(parseInt(userRole));
-    }, []);
+    const userType = localStorage.getItem("role") ?? roles.STUDENT.toString();
+    const role = parseInt(userType);
 
     return (
         <div className={style.process}>

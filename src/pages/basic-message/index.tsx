@@ -1,5 +1,5 @@
 import { Button, message } from 'antd';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import style from '../../assets/styles/basic-message.module.css';
 import roles from "../../config/role";
 import axios from '../../http';
@@ -9,13 +9,9 @@ import StudentMessage from "../../components/student-message";
 import TeacherMessage from "../../components/teacher-message";
 
 const BasicMessage = () => {
-    const [role, setRole] = useState<number>();
+    const userType = localStorage.getItem("role") ?? roles.STUDENT.toString();
+    const role = parseInt(userType);
     const [roleMessage, setRoleMessage] = useState();
-
-    useEffect(() => {
-        let userRole: any = localStorage.getItem("role") ?? roles.STUDENT;
-        setRole(parseInt(userRole));
-    }, []);
 
     const getRoleMessage = (msg: any) => {
         setRoleMessage(msg);
