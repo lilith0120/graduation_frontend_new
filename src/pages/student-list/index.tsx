@@ -1,4 +1,4 @@
-import { Table, Space, Button } from 'antd';
+import { Table, Space, Button, message } from 'antd';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import style from '../../assets/styles/student-list/student-list.module.css';
@@ -94,7 +94,13 @@ const StudentList = () => {
     };
 
     const handleClickExport = () => {
-        console.log("export");
+        if (!selectedList.length) {
+            message.warning("未选择导出对象");
+
+            return;
+        }
+        console.log(selectedList);
+        setSelectedList([]);
     };
 
     const handleClickImport = () => {
@@ -102,7 +108,13 @@ const StudentList = () => {
     };
 
     const handleClickDelect = () => {
+        if (!selectedList.length) {
+            message.warning("未选择导出对象");
+
+            return;
+        }
         console.log(selectedList);
+        setSelectedList([]);
     };
 
     const handleChangeSelect = (selected: any) => {
@@ -132,6 +144,7 @@ const StudentList = () => {
                 rowKey="id"
                 rowSelection={{
                     type: "checkbox",
+                    selectedRowKeys: selectedList,
                     onChange: handleChangeSelect
                 }}
                 title={() => (

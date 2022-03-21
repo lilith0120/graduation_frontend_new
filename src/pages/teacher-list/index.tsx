@@ -1,6 +1,8 @@
-import { Table, Space, Button } from 'antd';
+import { Table, Space, Button, message } from 'antd';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FileSaver from 'file-saver';
+import SheetToBlob from '../../config/sheet-to-blob';
 import style from '../../assets/styles/student-list/student-list.module.css';
 import axios from '../../http';
 
@@ -14,6 +16,7 @@ const TeacherList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [filterMsg, setFilterMsg] = useState<any>({});
     const [selectedList, setSelectedList] = useState([]);
+    const [selectedRow, setSelectedRow] = useState([]);
 
     useEffect(() => {
         const ps = sessionStorage.getItem("pageSize");
@@ -69,16 +72,24 @@ const TeacherList = () => {
     };
 
     const handleClickExport = () => {
-        console.log("export");
-        console.log(selectedList);
+        if (!selectedList.length) {
+            message.warning("未选择导出对象");
+
+            return;
+        }
+
+        handleExportData();
+        setSelectedList([]);
+        setSelectedRow([]);
     };
 
     const handleClickImport = () => {
         console.log("import");
     };
 
-    const handleChangeSelect = (selected: any) => {
+    const handleChangeSelect = (selected: any, selectedRow: any) => {
         setSelectedList(selected);
+        setSelectedRow(selectedRow);
     };
 
     const handleClickEdit = (text: any) => {
@@ -91,6 +102,18 @@ const TeacherList = () => {
         navigate(`/teacher-list/detail/${id}`);
     };
 
+    const handleExportData = () => {
+        const changeList: { [index: string]: string } = {
+            teacher_id: "教职工号",
+            name: "姓名",
+            sex: "性别",
+            email: "邮箱",
+        };
+
+        const blob = SheetToBlob(selectedRow, changeList);
+        FileSaver.saveAs(blob, "指导教师列表.xlsx");
+    };
+
     return (
         <div>
             <TeacherFilter searchItem={searchSubmitList} filterMsg={filterMsg} />
@@ -100,6 +123,7 @@ const TeacherList = () => {
                 rowKey="id"
                 rowSelection={{
                     type: "checkbox",
+                    selectedRowKeys: selectedList,
                     onChange: handleChangeSelect
                 }}
                 title={() => (
@@ -120,7 +144,7 @@ const TeacherList = () => {
                     }
                 }
                 scroll={{ y: 330 }}>
-                <Table.Column title="教职工号" dataIndex="id" />
+                <Table.Column title="教职工号" dataIndex="teacher_id" />
                 <Table.Column title="教师名字" dataIndex="name" />
                 <Table.Column title="性别" dataIndex="sex"
                     render={(text) => {
