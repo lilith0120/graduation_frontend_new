@@ -34,6 +34,7 @@ const ReviewTabContent = (props: any) => {
     };
 
     const handleClickReview = (fileId: any) => {
+        sessionStorage.setItem("currentPage", window.location.pathname);
         navigate(`/review-list/detail/${fileId}`);
     };
 

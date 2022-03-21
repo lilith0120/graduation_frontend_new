@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Space, Button, Descriptions, Tag, Modal, Input, notification } from 'antd';
+import { Space, Button, Descriptions, Tag, Modal, Input, notification, message } from 'antd';
+import FileSaver from "file-saver";
 import style from '../../../assets/styles/review-list/detail.module.css';
 import { getType } from "../../../config/review-status";
 import axios from '../../../http';
@@ -13,6 +14,7 @@ const ReviewDetail = () => {
     const [reviewId, setReviewId] = useState(-1);
     const [showModal, setShowModal] = useState(false);
     const [review, setReview] = useState("");
+    const [isPass, setIsPass] = useState(false);
     const [reviewDetail, setReviewDetail] = useState<ReviewDetailData>({
         id: -1, file_name: "", Student: { name: "" }, Stage: { name: "" }, status: -1, createdAt: "", file_url: "",
     });
@@ -43,19 +45,39 @@ const ReviewDetail = () => {
     };
 
     const handleClickBack = () => {
-        navigate(-2);
+        const currentPage = sessionStorage.getItem("currentPage");
+        if (currentPage) {
+            navigate(currentPage, { replace: true });
+        } else {
+            navigate(-1);
+        }
     };
 
-    const handleClickDownload = () => {
-        console.log("download");
+    const handleClickDownload = async () => {
+        if (reviewDetail.status === 0) {
+            const res = await axios.patch('/api/teacher/review/download/file', {
+                fileIds: [reviewDetail.id],
+            });
+
+            if (!res) {
+                message.error("下载失败");
+
+                return;
+            }
+            navigate(0);
+        }
+
+        const file_format = reviewDetail.file_url.substr(reviewDetail.file_url.lastIndexOf(".") + 1);
+        FileSaver.saveAs(reviewDetail.file_url, `${reviewDetail.file_name}.${file_format}`);
     };
 
     const handleClickCheck = (check: boolean) => {
-        console.log(check);
+        setIsPass(check);
         setShowModal(true);
     };
 
     const handleCancelModal = () => {
+        setReview("");
         setShowModal(false);
     };
 
@@ -63,7 +85,7 @@ const ReviewDetail = () => {
         setReview(e.target.value);
     };
 
-    const handleOkModal = () => {
+    const handleOkModal = async () => {
         if (review === "") {
             notification["warning"]({
                 message: '审核反馈不能为空',
@@ -72,8 +94,22 @@ const ReviewDetail = () => {
             return;
         }
 
-        console.log(review);
+        await updateReview();
+    };
+
+    const updateReview = async () => {
+        const res = await axios.patch(`/api/teacher/review/${reviewDetail.id}`, {
+            pass: isPass,
+            comment: review,
+        });
+
+        if (!res) {
+            message.error("审核失败");
+
+            return;
+        }
         setShowModal(false);
+        navigate(0);
     };
 
     return (
@@ -82,14 +118,13 @@ const ReviewDetail = () => {
                 <LabelHeader label={"审核详细"} />
                 <Space>
                     <Button onClick={handleClickBack}>返回</Button>
+                    <Button type="primary" onClick={handleClickDownload} ghost>下载文件</Button>
                     {
-                        reviewDetail.status === 0 ?
-                            <Button type="primary" onClick={handleClickDownload}>下载文件</Button> :
-                            reviewDetail.status === 1 ?
-                                <>
-                                    <Button danger onClick={() => handleClickCheck(false)}>驳回</Button>
-                                    <Button type="primary" onClick={() => handleClickCheck(true)}>通过</Button>
-                                </> : <></>
+                        reviewDetail.status === 1 &&
+                        <>
+                            <Button danger onClick={() => handleClickCheck(false)}>驳回</Button>
+                            <Button type="primary" onClick={() => handleClickCheck(true)}>通过</Button>
+                        </>
                     }
                 </Space>
             </div>
@@ -128,12 +163,16 @@ const ReviewDetail = () => {
                     </Descriptions>
                 </div>
                 <div className={style.file_viewer}>
-                    <iframe className={style.file}
-                        title="预览文档"
-                        src={`https://view.xdocin.com/view?src=${reviewDetail.file_url}`} />
+                    {
+                        reviewDetail.file_url !== "" &&
+                        <iframe className={style.file}
+                            title="预览文档"
+                            src={`https://view.xdocin.com/view?src=${reviewDetail.file_url}`} />
+                    }
                 </div>
             </div>
-            <Modal title="审核反馈" visible={showModal}
+            <Modal title="审核反馈"
+                visible={showModal}
                 onOk={handleOkModal}
                 onCancel={handleCancelModal}>
                 <Input.TextArea placeholder="请输入审核反馈"

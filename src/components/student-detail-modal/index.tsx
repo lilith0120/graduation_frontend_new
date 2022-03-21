@@ -55,6 +55,7 @@ const StudentDetailModal = (props: any) => {
     };
 
     const handleClickReview = (fileId: any) => {
+        sessionStorage.setItem("currentPage", window.location.pathname);
         navigate(`/review-list/detail/${fileId}`);
     };
 
@@ -82,8 +83,10 @@ const StudentDetailModal = (props: any) => {
         }
         if (files.length === 1) {
             FileSaver.saveAs(fileUrls[0].url, `${fileUrls[0].file_name}.${fileUrls[0].file_format}`);
-        } else {
+        } else if (files.length > 1) {
             await zipFile(fileUrls);
+        } else {
+            message.warning("当前无文件下载");
         }
         setDetailList([...detailList]);
     };
