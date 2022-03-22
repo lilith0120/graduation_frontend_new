@@ -1,9 +1,11 @@
-import { Table, Space, Button, message } from 'antd';
+import { Table, Space, Button, message, Upload } from 'antd';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FileSaver from 'file-saver';
 import SheetToBlob from '../../config/sheet-to-blob';
+import SheetToJson from '../../config/sheet-to-json';
 import style from '../../assets/styles/student-list/student-list.module.css';
+import { TeacherLabel, getKey } from '../../config/teacher-label';
 import axios from '../../http';
 
 import TeacherFilter from "../../components/teacher-filter";
@@ -83,8 +85,19 @@ const TeacherList = () => {
         setSelectedRow([]);
     };
 
-    const handleClickImport = () => {
-        console.log("import");
+    const handleClickImport = async (file: any) => {
+        const { name } = file;
+        const format = name.substr(name.lastIndexOf(".") + 1);
+        if (format !== "xlsx" && format !== "xls") {
+            message.warning("文件格式只能为Excel");
+
+            return false;
+        }
+
+        const importData = await SheetToJson(file, getKey);
+        await handleImportData(importData);
+
+        return false;
     };
 
     const handleChangeSelect = (selected: any, selectedRow: any) => {
@@ -103,15 +116,23 @@ const TeacherList = () => {
     };
 
     const handleExportData = () => {
-        const changeList: { [index: string]: string } = {
-            teacher_id: "教职工号",
-            name: "姓名",
-            sex: "性别",
-            email: "邮箱",
-        };
-
-        const blob = SheetToBlob(selectedRow, changeList);
+        const blob = SheetToBlob(selectedRow, TeacherLabel);
         FileSaver.saveAs(blob, "指导教师列表.xlsx");
+    };
+
+    const handleImportData = async (importData: any) => {
+        const res = await axios.post('/api/admin/add_teacher', {
+            teachers: importData,
+        });
+
+        if (!res) {
+            message.error("批量导入失败");
+
+            return;
+        }
+        message.success("批量导入成功");
+        setFileData([...fileData, ...importData]);
+        setTotalItems(totalItems + importData.length);
     };
 
     return (
@@ -129,7 +150,13 @@ const TeacherList = () => {
                 title={() => (
                     <div className={style.create_btn}>
                         <Space>
-                            <Button type="primary" onClick={handleClickImport}>批量导入</Button>
+                            <Upload
+                                accept=".xls,.xlsx,application/vnd.ms-excel"
+                                maxCount={1}
+                                beforeUpload={handleClickImport}
+                                fileList={[]}>
+                                <Button type="primary">批量导入</Button>
+                            </Upload>
                             <Button type="primary" onClick={handleClickExport}>批量导出</Button>
                         </Space>
                     </div>

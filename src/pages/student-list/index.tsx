@@ -1,8 +1,12 @@
-import { Table, Space, Button, message } from 'antd';
+import { Table, Space, Button, message, Upload } from 'antd';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FileSaver from 'file-saver';
+import SheetToBlob from '../../config/sheet-to-blob';
+import SheetToJson from '../../config/sheet-to-json';
 import style from '../../assets/styles/student-list/student-list.module.css';
 import roles from "../../config/role";
+import { StudentLabel, getKey } from '../../config/student-label';
 import axios from '../../http';
 
 import StudentFilter from "../../components/student-filter";
@@ -17,6 +21,10 @@ const StudentList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [filterMsg, setFilterMsg] = useState<any>({});
     const [selectedList, setSelectedList] = useState([]);
+    const [selectedRow, setSelectedRow] = useState([]);
+    const [professionList, setProfessionList] = useState([]);
+    const [teacherList, setTeacherList] = useState([]);
+    const [isChange, setIsChange] = useState(false);
 
     useEffect(() => {
         const ps = sessionStorage.getItem("pageSize");
@@ -34,6 +42,9 @@ const StudentList = () => {
         if (fm) {
             setFilterMsg(JSON.parse(fm));
         }
+
+        getProfessionList();
+        getTeacherList();
     }, []);
 
     useEffect(() => {
@@ -44,6 +55,19 @@ const StudentList = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pageSize, currentPage, filterMsg, role]);
+
+    useEffect(() => {
+        if (isChange) {
+            if (role === roles.ADMIN) {
+                fetchDataByAdmin();
+            } else if (role === roles.TEACHER) {
+                fetchDataByTeacher();
+            }
+        }
+
+        setIsChange(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isChange]);
 
     const fetchDataByAdmin = async () => {
         const { student_id, name, grade, sex, profession_id, teacher_id } = filterMsg;
@@ -99,26 +123,57 @@ const StudentList = () => {
 
             return;
         }
-        console.log(selectedList);
+
+        handleExportData();
         setSelectedList([]);
+        setSelectedRow([]);
     };
 
-    const handleClickImport = () => {
-        console.log("import");
+    const handleClickImport = async (file: any) => {
+        const { name } = file;
+        const format = name.substr(name.lastIndexOf(".") + 1);
+        if (format !== "xlsx" && format !== "xls") {
+            message.warning("文件格式只能为Excel");
+
+            return false;
+        }
+
+        const data: any = await SheetToJson(file, getKey);
+        const importData = data.map((item: any) => {
+            if (item.profession_name) {
+                const p: any = professionList.find((p: any) => p.name === item.profession_name);
+                item.profession_id = p.id;
+                delete item.profession_name;
+            }
+
+            if (item.teacher_name) {
+                const t: any = teacherList.find((t: any) => t.name === item.teacher_name);
+                item.teacher_id = t.id;
+                delete item.teacher_name;
+            }
+
+            return item;
+        });
+        await handleImportData(importData);
+
+        return false;
     };
 
-    const handleClickDelect = () => {
+    const handleClickDelect = async () => {
         if (!selectedList.length) {
             message.warning("未选择导出对象");
 
             return;
         }
-        console.log(selectedList);
+
+        await handleDeleteData();
         setSelectedList([]);
+        setSelectedRow([]);
     };
 
-    const handleChangeSelect = (selected: any) => {
+    const handleChangeSelect = (selected: any, selectedRow: any) => {
         setSelectedList(selected);
+        setSelectedRow(selectedRow);
     };
 
     const handleClickEdit = (text: any) => {
@@ -133,6 +188,53 @@ const StudentList = () => {
         } else {
             navigate(`/student-list/stage-detail/${id}`);
         }
+    };
+
+    const handleExportData = () => {
+        const blob = SheetToBlob(selectedRow, StudentLabel);
+        FileSaver.saveAs(blob, "学生列表.xlsx");
+    };
+
+    const handleImportData = async (importData: any) => {
+        const res = await axios.post('/api/admin/add_student', {
+            students: importData,
+        });
+
+        if (!res) {
+            message.error("批量导入失败");
+
+            return;
+        }
+        message.success("批量导入成功");
+        setIsChange(true);
+    };
+
+    const handleDeleteData = async () => {
+        const res = await axios.delete('/api/admin/delete_student', {
+            data: {
+                students: selectedRow,
+            },
+        });
+
+        if (!res) {
+            message.error("批量删除失败");
+
+            return;
+        }
+        message.success("批量删除成功");
+        setIsChange(true);
+    };
+
+    const getProfessionList = async () => {
+        const res: any = await axios.get('/api/util/get_profession');
+        const { professions } = res;
+        setProfessionList(professions);
+    };
+
+    const getTeacherList = async () => {
+        const res: any = await axios.get('/api/util/get_teacher');
+        const { teachers } = res;
+        setTeacherList(teachers);
     };
 
     return (
@@ -154,7 +256,13 @@ const StudentList = () => {
                                 role === roles.ADMIN &&
                                 <>
                                     <Button onClick={handleClickDelect}>批量删除</Button>
-                                    <Button type="primary" onClick={handleClickImport}>批量导入</Button>
+                                    <Upload
+                                        accept=".xls,.xlsx,application/vnd.ms-excel"
+                                        maxCount={1}
+                                        beforeUpload={handleClickImport}
+                                        fileList={[]}>
+                                        <Button type="primary">批量导入</Button>
+                                    </Upload>
                                 </>
                             }
                             <Button type="primary" onClick={handleClickExport}>批量导出</Button>
