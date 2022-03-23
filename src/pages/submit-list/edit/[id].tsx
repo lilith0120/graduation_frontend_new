@@ -58,6 +58,10 @@ const Edit = () => {
         const res: any = await axios.get(`/api/util/get_process`);
         const { process } = res;
 
+        if (process) {
+            process[process.length - 1].is_review = true;
+        }
+
         setStageList(process);
     };
 
@@ -113,12 +117,16 @@ const Edit = () => {
             return;
         };
 
+        const stageId = form.getFieldValue("StageId");
+        const select = stageList.find((item) => item.id === stageId);
+
         const fileData = {
             file_id: fileId,
             file_name: form.getFieldValue("file_name"),
             file_url: file.url,
             file_detail: form.getFieldValue("file_detail"),
-            file_stage: form.getFieldValue("StageId"),
+            file_stage: stageId,
+            is_review: select ? true : false,
         };
 
         const res: any = await uploadFileData(fileData);
