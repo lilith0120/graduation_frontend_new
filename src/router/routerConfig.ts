@@ -14,6 +14,7 @@ const ReviewListDetail = () => import('../pages/review-list/detail/[id]');
 const TeacherList = () => import('../pages/teacher-list/index');
 const TeacherListDetail = () => import('../pages/teacher-list/detail/[id]');
 const TeacherListEdit = () => import('../pages/teacher-list/edit/[id]');
+const ReplyGroup = () => import('../pages/reply-group/index');
 
 const routers = [
     {
@@ -150,6 +151,14 @@ const routers = [
         meta: {
             isAuth: true,
             title: "教师列表-编辑",
+        },
+    },
+    {
+        path: "/reply-group",
+        component: ReplyGroup,
+        meta: {
+            isAuth: true,
+            title: "答辩分组",
         },
     },
 ];

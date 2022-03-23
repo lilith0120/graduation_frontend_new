@@ -9,6 +9,7 @@ import {
     TeamOutlined,
     ApartmentOutlined,
     CarryOutOutlined,
+    BlockOutlined,
 } from '@ant-design/icons';
 import style from './side.module.css';
 import roles from '../../config/role';
@@ -74,6 +75,12 @@ const Side = () => {
                     role === roles.TEACHER &&
                     <Menu.Item key="/review-list" icon={<CarryOutOutlined />}>
                         审核列表
+                    </Menu.Item>
+                }
+                {
+                    role === roles.ADMIN &&
+                    <Menu.Item key="/reply-group" icon={<BlockOutlined />}>
+                        答辩分组
                     </Menu.Item>
                 }
             </Menu>
