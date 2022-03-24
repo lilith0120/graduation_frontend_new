@@ -55,7 +55,7 @@ const StudentDetailModal = (props: any) => {
     };
 
     const handleClickReview = (fileId: any) => {
-        sessionStorage.setItem("currentPage", window.location.pathname);
+        sessionStorage.setItem("currentPathname", window.location.pathname);
         navigate(`/review-list/detail/${fileId}`);
     };
 

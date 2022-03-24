@@ -7,7 +7,7 @@ import axios from '../../http';
 import LabelHeader from '../label-header';
 
 const StudentFilter = (props: any) => {
-    const { searchItem } = props;
+    const { searchItem, filterMsg } = props;
     const [form] = Form.useForm();
     const userType = localStorage.getItem("role") ?? roles.TEACHER.toString();
     const role = parseInt(userType);
@@ -25,6 +25,13 @@ const StudentFilter = (props: any) => {
             getTeacherList();
         }
     }, [role]);
+
+    useEffect(() => {
+        form.setFieldsValue({
+            ...filterMsg,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterMsg]);
 
     const getProcessList = async () => {
         const res: any = await axios.get('/api/util/get_process');

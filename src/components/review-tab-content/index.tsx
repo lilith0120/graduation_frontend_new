@@ -11,16 +11,33 @@ const ReviewTabContent = (props: any) => {
     const [reviewList, setReviewList] = useState<ReviewData[]>([]);
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        const ps = sessionStorage.getItem(`pageSize${status}`);
+        const cp = sessionStorage.getItem(`currentPage${status}`);
+
+        if (ps) {
+            setPageSize(parseInt(ps));
+        }
+
+        if (cp) {
+            setCurrentPage(parseInt(cp));
+        }
+    }, []);
 
     useEffect(() => {
         fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
-    const fetchData = async (page = 1, size = 10) => {
+        sessionStorage.setItem(`pageSize${status}`, pageSize.toString());
+        sessionStorage.setItem(`currentPage${status}`, currentPage.toString());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pageSize, currentPage]);
+
+    const fetchData = async () => {
         const res: any = await axios.post('/api/teacher/review/all', {
-            size,
-            current: page,
+            size: pageSize,
+            current: currentPage,
             status,
         });
         const { totalNums, reviews } = res;
@@ -29,12 +46,12 @@ const ReviewTabContent = (props: any) => {
     };
 
     const handleChangePage = async (page: any, size: any) => {
-        await fetchData(page, size);
+        setCurrentPage(page);
         setPageSize(size);
     };
 
     const handleClickReview = (fileId: any) => {
-        sessionStorage.setItem("currentPage", window.location.pathname);
+        sessionStorage.setItem("currentPathname", window.location.pathname);
         navigate(`/review-list/detail/${fileId}`);
     };
 
@@ -46,6 +63,7 @@ const ReviewTabContent = (props: any) => {
                     {
                         total: totalItems,
                         pageSize,
+                        current: currentPage,
                         showQuickJumper: true,
                         showTotal: total => `共 ${total} 条`,
                         onChange: handleChangePage,

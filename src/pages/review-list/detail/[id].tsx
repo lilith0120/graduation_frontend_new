@@ -97,7 +97,7 @@ const ReviewDetail = () => {
     };
 
     const handleClickBack = () => {
-        const currentPage = sessionStorage.getItem("currentPage");
+        const currentPage = sessionStorage.getItem("currentPathname");
         if (currentPage) {
             navigate(currentPage, { replace: true });
         } else {

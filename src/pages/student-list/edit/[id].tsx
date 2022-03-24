@@ -174,6 +174,46 @@ const StudentEdit = () => {
                             }
                         </Select>
                     </Form.Item>
+                    <Form.Item label="送审老师" name="review_id"
+                        rules={[
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('teacher_id') !== value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('送审老师和指导老师不能相同'));
+                                },
+                            }),
+                        ]}>
+                        <Select placeholder="请选择送审老师" allowClear>
+                            {
+                                teacherList.map((item, index) => (
+                                    <Select.Option key={index} value={item.id}>
+                                        {item.name}
+                                    </Select.Option>
+                                ))
+                            }
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="答辩老师" name="review_group">
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            placeholder="请选择答辩教师"
+                            optionFilterProp="children"
+                            filterOption={(input: any, option: any) =>
+                                option.children.indexOf(input) >= 0
+                            }
+                        >
+                            {
+                                teacherList.map((item, index) => (
+                                    <Select.Option key={index} value={item.id}>
+                                        {item.name}
+                                    </Select.Option>
+                                ))
+                            }
+                        </Select>
+                    </Form.Item>
                 </Form>
             </div>
         </div>

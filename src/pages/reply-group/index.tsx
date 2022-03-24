@@ -112,8 +112,8 @@ const ReplyGroup = () => {
                             }
                         >
                             {
-                                teacherList.map((item: any) => (
-                                    <Select.Option key={item.id}>
+                                teacherList.map((item, index) => (
+                                    <Select.Option key={index} value={item.id}>
                                         {item.name}
                                     </Select.Option>
                                 ))

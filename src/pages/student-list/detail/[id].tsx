@@ -79,12 +79,18 @@ const StudentDetail = () => {
                         {studentDetail.grade}
                     </Descriptions.Item>
                     <Descriptions.Item label="专业">
-                        {studentDetail.Profession.name}
+                        {studentDetail.Profession?.name}
                     </Descriptions.Item>
                     <Descriptions.Item label="邮箱">
                         {studentDetail.User.email}
                     </Descriptions.Item>
                     <Descriptions.Item label="指导老师">
+                        {studentDetail.Teacher?.name}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="送审老师">
+                        {studentDetail.Teacher?.name}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="答辩老师">
                         {studentDetail.Teacher?.name}
                     </Descriptions.Item>
                 </Descriptions>

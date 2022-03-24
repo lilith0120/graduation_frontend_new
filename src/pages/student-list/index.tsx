@@ -53,6 +53,10 @@ const StudentList = () => {
         } else if (role === roles.TEACHER) {
             fetchDataByTeacher();
         }
+
+        sessionStorage.setItem("pageSize", pageSize.toString());
+        sessionStorage.setItem("currentPage", currentPage.toString());
+        sessionStorage.setItem("filterMsg", JSON.stringify(filterMsg));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pageSize, currentPage, filterMsg, role]);
 
@@ -239,7 +243,7 @@ const StudentList = () => {
 
     return (
         <div>
-            <StudentFilter searchItem={searchSubmitList} />
+            <StudentFilter searchItem={searchSubmitList} filterMsg={filterMsg} />
             <Table
                 className={style.table}
                 dataSource={fileData}
@@ -273,6 +277,7 @@ const StudentList = () => {
                     {
                         total: totalItems,
                         pageSize,
+                        current: currentPage,
                         showQuickJumper: true,
                         showTotal: total => `共 ${total} 条`,
                         onChange: handleChangePage,

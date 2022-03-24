@@ -101,6 +101,7 @@ const SubmitList = () => {
                     {
                         total: totalItems,
                         pageSize,
+                        current: currentPage,
                         showQuickJumper: true,
                         showTotal: total => `共 ${total} 条`,
                         onChange: handleChangePage,
