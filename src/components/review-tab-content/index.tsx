@@ -77,7 +77,15 @@ const ReviewTabContent = (props: any) => {
 
                         return <Tag color={color}>{getType(text)}</Tag>
                     }} />
-                <Table.Column title="提交时间" dataIndex="createdAt" />
+                <Table.Column title="提交时间" dataIndex="createdAt"
+                    defaultSortOrder="descend"
+                    showSorterTooltip={false}
+                    sorter={(a: any, b: any) => {
+                        const a_time: any = new Date(a.createdAt);
+                        const b_time: any = new Date(b.createdAt);
+
+                        return a_time - b_time;
+                    }} />
                 <Table.Column title="操作"
                     render={(text, record: any) => {
                         const fileStatus = record.status;

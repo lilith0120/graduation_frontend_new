@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Space, Button, Descriptions, Tag, Modal, Input, notification, message } from 'antd';
+import { Space, Button, Descriptions, Tag, Modal, Input, notification, message, Timeline } from 'antd';
 import FileSaver from "file-saver";
 import style from '../../../assets/styles/review-list/detail.module.css';
-import { getType } from "../../../config/review-status";
+import { reviewStatus, getType } from "../../../config/review-status";
 import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
@@ -16,8 +16,10 @@ const ReviewDetail = () => {
     const [review, setReview] = useState("");
     const [isPass, setIsPass] = useState(false);
     const [reviewDetail, setReviewDetail] = useState<ReviewDetailData>({
-        id: -1, file_name: "", Student: { name: "" }, Stage: { name: "" }, status: -1, createdAt: "", file_url: "",
+        id: -1, file_name: "", Student: { name: "" }, is_review: false,
+        Stage: { name: "" }, status: -1, createdAt: "", file_url: "",
     });
+    const [timeStamp, setTimeStamp] = useState<any[]>([]);
 
     useEffect(() => {
         const { id }: any = params;
@@ -42,6 +44,56 @@ const ReviewDetail = () => {
         const res: any = await axios.get(`/api/teacher/review/${reviewId}`);
         const { file } = res;
         setReviewDetail(file);
+
+        if (file.is_review) {
+            await getTimeStamp();
+        }
+    };
+
+    const getTimeStamp = async () => {
+        const ts = [
+            {
+                time: "2022-03-21 12:00:00",
+                user: "九歌",
+                status: "提交文件"
+            },
+            {
+                time: "2022-03-22 12:00:00",
+                user: "测试老师1",
+                status: "审核通过",
+            },
+            {
+                time: "2022-03-23 12:00:00",
+                user: "测试老师2",
+                status: "审核驳回",
+            },
+            {
+                time: "2022-03-23 13:00:00",
+                user: "测试老师3",
+                status: "审核中",
+            },
+            {
+                time: "2022-03-23 14:00:00",
+                user: "测试老师4",
+                status: "审核通过",
+            },
+            {
+                time: "2022-03-23 14:00:00",
+                user: "测试老师4",
+                status: "审核通过",
+            },
+            {
+                time: "2022-03-23 14:00:00",
+                user: "测试老师4",
+                status: "审核通过",
+            },
+            {
+                time: "2022-03-23 14:00:00",
+                user: "测试老师4",
+                status: "审核通过",
+            },
+        ];
+        setTimeStamp(ts);
     };
 
     const handleClickBack = () => {
@@ -162,14 +214,42 @@ const ReviewDetail = () => {
                         }
                     </Descriptions>
                 </div>
-                <div className={style.file_viewer}>
-                    {
-                        reviewDetail.file_url !== "" &&
-                        <iframe className={style.file}
-                            title="预览文档"
-                            src={`https://view.xdocin.com/view?src=${reviewDetail.file_url}`} />
-                    }
-                </div>
+                {
+                    reviewDetail.is_review ?
+                        <div className={style.time_viewer}>
+                            <Timeline mode="left">
+                                {
+                                    timeStamp.map((item, index) => (
+                                        <Timeline.Item key={index} label={item.time}
+                                            color={
+                                                reviewStatus[item.status] === 1 ? "blue" :
+                                                    reviewStatus[item.status] === 2 ? "green" :
+                                                        reviewStatus[item.status] === 3 ?
+                                                            "red" : "grey"
+                                            }>
+                                            {`${item.user} : `}
+                                            <Tag color={
+                                                reviewStatus[item.status] === 1 ? "processing" :
+                                                    reviewStatus[item.status] === 2 ? "success" :
+                                                        reviewStatus[item.status] === 3 ?
+                                                            "error" : "default"
+                                            }>
+                                                {item.status}
+                                            </Tag>
+                                        </Timeline.Item>
+                                    ))
+                                }
+                            </Timeline>
+                        </div> :
+                        <div className={style.file_viewer}>
+                            {
+                                reviewDetail.file_url !== "" &&
+                                <iframe className={style.file}
+                                    title="预览文档"
+                                    src={`https://view.xdocin.com/view?src=${reviewDetail.file_url}`} />
+                            }
+                        </div>
+                }
             </div>
             <Modal title="审核反馈"
                 visible={showModal}

@@ -33,7 +33,7 @@ const StudentDetailModal = (props: any) => {
             detailList.map((item) => {
                 if (item.file_id !== undefined && item.file_id !== null) {
                     files.push(item);
-                    if (item.push_status === "未审核") {
+                    if (item.push_status === "未审核" && !item.is_review) {
                         fileIds.push(item.file_id);
                     }
                 }
@@ -41,7 +41,7 @@ const StudentDetailModal = (props: any) => {
                 return item;
             });
         } else {
-            if (file.push_status === "未审核") {
+            if (file.push_status === "未审核" && !file.is_review) {
                 fileIds.push(file.file_id);
             }
             files.push(file);
@@ -77,7 +77,7 @@ const StudentDetailModal = (props: any) => {
                 file_format: files[key].file_url.substr(files[key].file_url.lastIndexOf(".") + 1),
             }
             fileUrls.push(url);
-            if (files[key].push_status === "未审核") {
+            if (files[key].push_status === "未审核" && !files[key].is_review) {
                 files[key].push_status = "审核中";
             }
         }
@@ -149,7 +149,9 @@ const StudentDetailModal = (props: any) => {
                                                 下载文件
                                             </Button>,
                                             <Button key="item_review" type="link" size="small"
-                                                disabled={reviewStatus[item.push_status] === 2 || reviewStatus[item.push_status] === 3 ? true : false}
+                                                disabled={
+                                                    reviewStatus[item.push_status] === 2 || reviewStatus[item.push_status] === 3 || item.is_review ? true : false
+                                                }
                                                 onClick={() => handleClickReview(item.file_id)}>
                                                 审核文件
                                             </Button>

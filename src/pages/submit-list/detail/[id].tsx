@@ -15,7 +15,8 @@ const Detail = () => {
     const navigate = useNavigate();
     const [fileId, setFileId] = useState(-1);
     const [fileDetail, setFileDetail] = useState<FileData>({
-        id: -1, file_name: "", file_url: "", Stage: { name: "" }, status: 0, Teacher: { name: "" }, createdAt: "",
+        id: -1, file_name: "", file_url: "", is_review: false,
+        Stage: { name: "" }, status: 0, Teacher: { name: "" }, createdAt: "",
     });
 
     useEffect(() => {
@@ -106,12 +107,17 @@ const Detail = () => {
                     <Descriptions.Item label="指导老师">
                         {fileDetail.Teacher?.name}
                     </Descriptions.Item>
-                    <Descriptions.Item label="指导老师评论">
-                        {fileDetail.review}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="指导老师评论时间">
-                        {fileDetail.review_at}
-                    </Descriptions.Item>
+                    {
+                        !fileDetail.is_review &&
+                        <>
+                            <Descriptions.Item label="指导老师评论">
+                                {fileDetail.review}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="指导老师评论时间">
+                                {fileDetail.review_at}
+                            </Descriptions.Item>
+                        </>
+                    }
                 </Descriptions>
             </div>
         </div>

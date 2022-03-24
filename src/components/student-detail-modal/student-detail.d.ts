@@ -9,4 +9,5 @@ interface StudentDetail {
     isPush?: boolean,
     isFinish?: boolean,
     push_status?: string,
+    is_review?: boolean;
 }

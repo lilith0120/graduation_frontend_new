@@ -15,4 +15,5 @@ interface StudentData {
     Stage?: {
         name: string,
     },
+    StageId?: number;
 }

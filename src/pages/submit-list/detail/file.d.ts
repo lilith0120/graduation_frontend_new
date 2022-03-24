@@ -13,4 +13,5 @@ interface FileData {
     },
     review?: string,
     review_at?: string,
+    is_review: boolean,
 };

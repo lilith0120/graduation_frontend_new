@@ -14,10 +14,10 @@ const StudentStageDetail = () => {
     const [selectOption, setSelectOption] = useState<any[]>([]);
     const [select, setSelect] = useState<any>();
     const [studentDetail, setStudentDetail] = useState<StudentData>({
-        name: "", grade: "", Profession: { name: "" }, sex: "", User: { email: "", user_id: "" },
+        name: "", grade: "", Profession: { name: "" }, sex: "", User: { email: "", user_id: "" }
     });
     const [fileDetail, setFileDetail] = useState<FileData>({
-        id: -1, file_name: "", status: 0, createdAt: "", Stage: { name: "" },
+        id: -1, file_name: "", status: 0, createdAt: "", Stage: { name: "" }, is_review: false,
     });
 
     useEffect(() => {
@@ -75,7 +75,7 @@ const StudentStageDetail = () => {
 
         let current = fileList[0].id;
         fileList.filter((item: any) => {
-            if (item.status === 2) {
+            if (item.status === 2 && item.id === studentDetail.StageId) {
                 current = item.id;
             }
 
@@ -153,7 +153,9 @@ const StudentStageDetail = () => {
                             }
                         </Select>
                         <Button type="primary" onClick={handleClickReview}
-                            disabled={!selectOption.length || (fileDetail?.status === 2 || fileDetail?.status === 3) ? true : false}>
+                            disabled={
+                                !selectOption.length || fileDetail.is_review || (fileDetail?.status === 2 || fileDetail?.status === 3) ? true : false
+                            }>
                             审核
                         </Button>
                     </Space>

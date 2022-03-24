@@ -17,8 +17,13 @@
     margin-right: 4%;
 }
 
+.time_viewer,
 .file_viewer {
     width: 50%;
+}
+
+.time_viewer :global .ant-timeline-item {
+    padding-bottom: 50px;
 }
 
 .file {
