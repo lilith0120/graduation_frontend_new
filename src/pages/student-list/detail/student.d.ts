@@ -16,4 +16,6 @@ interface StudentData {
         name: string,
     },
     StageId?: number;
+    review_teacher?: string,
+    group_teacher?: Array,
 }

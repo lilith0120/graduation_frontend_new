@@ -43,7 +43,7 @@ const StudentEdit = () => {
 
     const fetchData = async () => {
         const res: any = await axios.get(`/api/admin/show_student/${studentId}`);
-        const { name, sex, ProfessionId, grade, User: { email, user_id }, TeacherId } = res;
+        const { name, sex, ProfessionId, grade, User: { email, user_id }, TeacherId, review_id, review_group } = res;
         const s = {
             student_id: user_id,
             name,
@@ -52,6 +52,8 @@ const StudentEdit = () => {
             grade,
             email,
             teacher_id: TeacherId,
+            review_id,
+            review_group,
         };
 
         form.setFieldsValue(s);

@@ -1,6 +1,7 @@
-import { Button, Form, Select, Switch } from "antd";
+import { Button, Form, message, Select, Switch } from "antd";
 import { useEffect, useState } from "react";
 import style from '../../assets/styles/reply-group.module.css';
+import axios from '../../http';
 
 import LabelHeader from "../../components/label-header";
 
@@ -14,8 +15,12 @@ const ReplyGroup = () => {
 
     useEffect(() => {
         getTeacherList();
-        getStudentList();
     }, []);
+
+    useEffect(() => {
+        getStudentList();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isReview]);
 
     useEffect(() => {
         if (selectTeachers.length === 1) {
@@ -26,40 +31,32 @@ const ReplyGroup = () => {
     }, [selectTeachers]);
 
     const getTeacherList = async () => {
-        const data = [];
-        for (let i = 0; i < 100; i++) {
-            const v = {
-                id: i,
-                name: `测试老师${i}`,
-            };
-            data.push(v);
-        }
-        setTeacherList(data);
+        const res: any = await axios.get('/api/util/get_teacher');
+        const { teachers } = res;
+        setTeacherList(teachers);
     };
 
     const getStudentList = async () => {
-        const data = [];
-        for (let i = 0; i < 100; i++) {
-            const v = {
-                id: i,
-                name: `测试学生${i}`,
-            };
-            data.push(v);
-        }
-        setStudentList(data);
+        const res: any = await axios.get(`/api/util/get_student/${isReview}`);
+        const { students } = res;
+        setStudentList(students);
     };
 
     const fetchDataByTeacher = async () => {
-        console.log("selectTeacher: ", selectTeachers);
-        const students: any = ["0", "1", "2"];
+        const res: any = await axios.post('/api/util/get_student', {
+            selectTeachers,
+        });
+        const { students } = res;
         form.setFieldsValue({
             studentIds: students,
         });
     };
 
     const fetchDataByStudent = async () => {
-        console.log("selectStudent: ", selectStudents);
-        const teachers: any = ["0", "1", "2"];
+        const res: any = await axios.post('/api/util/get_teacher', {
+            selectStudents,
+        });
+        const { teachers } = res;
         form.setFieldsValue({
             teacherIds: teachers,
         });
@@ -82,7 +79,19 @@ const ReplyGroup = () => {
     };
 
     const handleClickSave = async (value: any) => {
-        console.log(value);
+        const { teacherIds, studentIds, is_review = false } = value;
+        const res = await axios.post('/api/util/update_ass', {
+            selectTeachers: teacherIds,
+            selectStudents: studentIds,
+            isGroup: !is_review,
+        });
+
+        if (!res) {
+            message.error("保存失败");
+
+            return;
+        }
+        message.success("保存成功");
     };
 
     return (

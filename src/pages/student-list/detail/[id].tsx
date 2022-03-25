@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Space, Descriptions } from 'antd';
+import roles from "../../../config/role";
 import style from '../../../assets/styles/student-list/detail.module.css';
 import axios from '../../../http';
 
@@ -9,6 +10,8 @@ import LabelHeader from "../../../components/label-header";
 const StudentDetail = () => {
     const params = useParams();
     const navigate = useNavigate();
+    const userType = localStorage.getItem("role") ?? roles.TEACHER.toString();
+    const role = parseInt(userType);
     const [studentId, setStudentId] = useState(-1);
     const [studentDetail, setStudentDetail] = useState<StudentData>({
         name: "", grade: "",
@@ -30,13 +33,38 @@ const StudentDetail = () => {
 
     useEffect(() => {
         if (studentId !== -1) {
-            fetchData();
+            if (role === roles.ADMIN) {
+                fetchDataByAdmin();
+            } else if (role === roles.TEACHER) {
+                fetchDataByTeacher();
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [studentId]);
+    }, [studentId, role]);
 
-    const fetchData = async () => {
+    const fetchDataByAdmin = async () => {
         const res: any = await axios.get(`/api/admin/show_student/${studentId}`);
+        if (res.group) {
+            let group_teacher = "";
+            res.group.forEach((item: any, index: any) => {
+                let content;
+                if (index === 0) {
+                    content = item;
+                } else {
+                    content = `, ${item}`;
+                }
+
+                group_teacher += content;
+            });
+
+            res.group_teacher = group_teacher;
+        }
+
+        setStudentDetail(res);
+    };
+
+    const fetchDataByTeacher = async () => {
+        const res: any = await axios.get(`/api/teacher/show_student/${studentId}`);
         setStudentDetail(res);
     };
 
@@ -87,12 +115,17 @@ const StudentDetail = () => {
                     <Descriptions.Item label="指导老师">
                         {studentDetail.Teacher?.name}
                     </Descriptions.Item>
-                    <Descriptions.Item label="送审老师">
-                        {studentDetail.Teacher?.name}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="答辩老师">
-                        {studentDetail.Teacher?.name}
-                    </Descriptions.Item>
+                    {
+                        role === roles.ADMIN &&
+                        <>
+                            <Descriptions.Item label="送审老师">
+                                {studentDetail?.review_teacher}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="答辩老师">
+                                {studentDetail?.group_teacher}
+                            </Descriptions.Item>
+                        </>
+                    }
                 </Descriptions>
             </div>
         </div>
