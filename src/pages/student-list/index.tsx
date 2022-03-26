@@ -286,17 +286,17 @@ const StudentList = () => {
                 scroll={{ y: 280 }}>
                 <Table.Column title="学号" dataIndex="student_id" />
                 <Table.Column title="学生名字" dataIndex="name" />
-                <Table.Column title="性别" dataIndex="sex"
+                <Table.Column title="性别" dataIndex="sex" width={80}
                     render={(text) => {
                         return text ? "女" : "男";
                     }} />
-                <Table.Column title="年级" dataIndex="grade" />
+                <Table.Column title="年级" dataIndex="grade" width={80} />
                 <Table.Column title="专业" dataIndex="profession_name" />
                 {
                     role === roles.ADMIN ?
                         <Table.Column title="指导老师" dataIndex="teacher_name" /> :
                         <>
-                            <Table.Column title="毕业设计阶段" dataIndex="stage_name" width={200} />
+                            <Table.Column title="毕业设计阶段" dataIndex="stage_name" width={160} />
                             <Table.Column title="邮箱" dataIndex="email" width={200} />
                         </>
                 }
