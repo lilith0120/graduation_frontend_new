@@ -118,7 +118,7 @@ const Edit = () => {
         };
 
         const stageId = form.getFieldValue("StageId");
-        const select = stageList.find((item) => item.id === stageId);
+        const select = stageList.findIndex((item: any) => item.id === stageId && item.is_review);
 
         const fileData = {
             file_id: fileId,
@@ -126,7 +126,7 @@ const Edit = () => {
             file_url: file.url,
             file_detail: form.getFieldValue("file_detail"),
             file_stage: stageId,
-            is_review: select ? true : false,
+            is_review: select !== -1 ? true : false,
         };
 
         const res: any = await uploadFileData(fileData);

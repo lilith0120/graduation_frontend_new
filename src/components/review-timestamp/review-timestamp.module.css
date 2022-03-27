@@ -1,0 +1,8 @@
+.time_viewer {
+    width: 50%;
+    margin-top: 2%;
+}
+
+.time_viewer :global .ant-timeline-item {
+    padding-bottom: 50px;
+}

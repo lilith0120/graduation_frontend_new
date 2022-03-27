@@ -1,20 +1,24 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Space, Button, Descriptions, Tag, Modal, Input, notification, message, Timeline } from 'antd';
+import { Space, Button, Descriptions, Tag, Modal, Input, notification, message } from 'antd';
 import FileSaver from "file-saver";
 import style from '../../../assets/styles/review-list/detail.module.css';
 import { getType } from "../../../config/review-status";
 import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
+import ReviewTimestamp from "../../../components/review-timestamp";
 
 const ReviewDetail = () => {
     const params = useParams();
     const navigate = useNavigate();
+    const userName = localStorage.getItem("name");
     const [reviewId, setReviewId] = useState(-1);
     const [showModal, setShowModal] = useState(false);
     const [review, setReview] = useState("");
     const [isPass, setIsPass] = useState(false);
+    const [canReview, setCanReview] = useState(false);
+    const [reviewIndex, setReviewIndex] = useState(0);
     const [reviewDetail, setReviewDetail] = useState<ReviewDetailData>({
         id: -1, file_name: "", Student: { name: "" }, is_review: false,
         Stage: { name: "" }, status: -1, createdAt: "", file_url: "",
@@ -51,49 +55,18 @@ const ReviewDetail = () => {
     };
 
     const getTimeStamp = async () => {
-        const ts = [
-            {
-                time: "2022-03-21 12:00:00",
-                user: "九歌",
-                status: "提交文件"
-            },
-            {
-                time: "2022-03-22 12:00:00",
-                user: "测试老师1",
-                status: "审核通过",
-            },
-            {
-                time: "2022-03-23 12:00:00",
-                user: "测试老师2",
-                status: "审核驳回",
-            },
-            {
-                time: "2022-03-23 13:00:00",
-                user: "测试老师3",
-                status: "审核中",
-            },
-            {
-                time: "2022-03-23 14:00:00",
-                user: "测试老师4",
-                status: "审核通过",
-            },
-            {
-                time: "2022-03-23 14:00:00",
-                user: "测试老师4",
-                status: "审核通过",
-            },
-            {
-                time: "2022-03-23 14:00:00",
-                user: "测试老师4",
-                status: "审核通过",
-            },
-            {
-                time: "2022-03-23 14:00:00",
-                user: "测试老师4",
-                status: "审核通过",
-            },
-        ];
-        setTimeStamp(ts);
+        const res: any = await axios.get(`/api/teacher/review/teacher_list/${reviewId}`);
+        const { teacherList } = res;
+        teacherList.forEach((item: any, index: any) => {
+            if (item.user === userName) {
+                setReviewIndex(index);
+            }
+
+            if (!item.is_group && (item.status > 1 || item.user === userName)) {
+                setCanReview(true);
+            }
+        });
+        setTimeStamp(teacherList);
     };
 
     const handleClickBack = () => {
@@ -116,16 +89,38 @@ const ReviewDetail = () => {
 
                 return;
             }
-            navigate(0);
+            reviewDetail.status = 1;
+            setReviewDetail({ ...reviewDetail });
+        }
+
+        if (reviewDetail.is_review && timeStamp[reviewIndex].status === 0) {
+            const { userId, is_group } = timeStamp[reviewIndex];
+            const res = await axios.post('/api/teacher/review/download', {
+                teacher_id: userId,
+                student_id: timeStamp[0].userId,
+                is_group,
+            });
+
+            if (!res) {
+                message.error("下载失败");
+
+                return;
+            }
+            timeStamp[reviewIndex].status = 1;
+            setTimeStamp([...timeStamp]);
         }
 
         const file_format = reviewDetail.file_url.substr(reviewDetail.file_url.lastIndexOf(".") + 1);
         FileSaver.saveAs(reviewDetail.file_url, `${reviewDetail.file_name}.${file_format}`);
     };
 
-    const handleClickCheck = (check: boolean) => {
+    const handleClickCheck = async (check: boolean) => {
         setIsPass(check);
-        setShowModal(true);
+        if (!reviewDetail.is_review) {
+            setShowModal(true);
+        } else {
+            await updateReviewGroup(check);
+        }
     };
 
     const handleCancelModal = () => {
@@ -164,18 +159,42 @@ const ReviewDetail = () => {
         navigate(0);
     };
 
+    const updateReviewGroup = async (pass: any) => {
+        const { userId, is_group } = timeStamp[reviewIndex];
+        const res = await axios.post('/api/teacher/review', {
+            teacher_id: userId,
+            student_id: timeStamp[0].userId,
+            file_id: reviewId,
+            is_group,
+            pass,
+        });
+
+        if (!res) {
+            message.error("审核失败");
+
+            return;
+        }
+        navigate(0);
+    };
+
     return (
         <div>
             <div className={style.header}>
                 <LabelHeader label={"审核详细"} />
                 <Space>
                     <Button onClick={handleClickBack}>返回</Button>
-                    <Button type="primary" onClick={handleClickDownload} ghost>下载文件</Button>
                     {
-                        reviewDetail.status === 1 &&
+                        (!reviewDetail.is_review || (canReview && reviewDetail.is_review)) &&
                         <>
-                            <Button danger onClick={() => handleClickCheck(false)}>驳回</Button>
-                            <Button type="primary" onClick={() => handleClickCheck(true)}>通过</Button>
+                            <Button type="primary" onClick={handleClickDownload} ghost>下载文件</Button>
+                            {
+                                ((!reviewDetail.is_review && reviewDetail?.status === 1) ||
+                                    (reviewDetail.is_review && canReview && timeStamp[reviewIndex]?.status === 1)) &&
+                                <>
+                                    <Button danger onClick={() => handleClickCheck(false)}>驳回</Button>
+                                    <Button type="primary" onClick={() => handleClickCheck(true)}>通过</Button>
+                                </>
+                            }
                         </>
                     }
                 </Space>
@@ -216,31 +235,7 @@ const ReviewDetail = () => {
                 </div>
                 {
                     reviewDetail.is_review ?
-                        <div className={style.time_viewer}>
-                            <Timeline mode="left">
-                                {
-                                    timeStamp.map((item, index) => (
-                                        <Timeline.Item key={index} label={item.time}
-                                            color={
-                                                item.status === 1 ? "blue" :
-                                                    item.status === 2 ? "green" :
-                                                        item.status === 3 ?
-                                                            "red" : "grey"
-                                            }>
-                                            {`${item.user} : `}
-                                            <Tag color={
-                                                item.status === 1 ? "processing" :
-                                                    item.status === 2 ? "success" :
-                                                        item.status === 3 ?
-                                                            "error" : "default"
-                                            }>
-                                                {getType(item.status) ?? item.status}
-                                            </Tag>
-                                        </Timeline.Item>
-                                    ))
-                                }
-                            </Timeline>
-                        </div> :
+                        <ReviewTimestamp data={timeStamp} /> :
                         <div className={style.file_viewer}>
                             {
                                 reviewDetail.file_url !== "" &&
