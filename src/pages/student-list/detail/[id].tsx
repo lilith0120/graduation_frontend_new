@@ -73,7 +73,7 @@ const StudentDetail = () => {
     };
 
     const handleClickEdit = () => {
-        navigate(`/student-list/edit/${studentId}`);
+        navigate(`/student-list/edit/${studentId}`, { replace: true });
     };
 
     return (

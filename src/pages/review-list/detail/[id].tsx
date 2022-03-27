@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Space, Button, Descriptions, Tag, Modal, Input, notification, message, Timeline } from 'antd';
 import FileSaver from "file-saver";
 import style from '../../../assets/styles/review-list/detail.module.css';
-import { reviewStatus, getType } from "../../../config/review-status";
+import { getType } from "../../../config/review-status";
 import axios from '../../../http';
 
 import LabelHeader from "../../../components/label-header";
@@ -222,19 +222,19 @@ const ReviewDetail = () => {
                                     timeStamp.map((item, index) => (
                                         <Timeline.Item key={index} label={item.time}
                                             color={
-                                                reviewStatus[item.status] === 1 ? "blue" :
-                                                    reviewStatus[item.status] === 2 ? "green" :
-                                                        reviewStatus[item.status] === 3 ?
+                                                item.status === 1 ? "blue" :
+                                                    item.status === 2 ? "green" :
+                                                        item.status === 3 ?
                                                             "red" : "grey"
                                             }>
                                             {`${item.user} : `}
                                             <Tag color={
-                                                reviewStatus[item.status] === 1 ? "processing" :
-                                                    reviewStatus[item.status] === 2 ? "success" :
-                                                        reviewStatus[item.status] === 3 ?
+                                                item.status === 1 ? "processing" :
+                                                    item.status === 2 ? "success" :
+                                                        item.status === 3 ?
                                                             "error" : "default"
                                             }>
-                                                {item.status}
+                                                {getType(item.status) ?? item.status}
                                             </Tag>
                                         </Timeline.Item>
                                     ))

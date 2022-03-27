@@ -149,7 +149,12 @@ const StudentEdit = () => {
                     </Form.Item>
                     <Form.Item label="专业" name="profession_id"
                         rules={[{ required: true, message: '专业不能为空' }]}>
-                        <Select placeholder="请选择专业" allowClear>
+                        <Select placeholder="请选择专业" allowClear
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input: any, option: any) =>
+                                option.children.indexOf(input) >= 0
+                            }>
                             {
                                 professionList.map((item, index) => (
                                     <Select.Option key={index} value={item.id}>
@@ -166,7 +171,12 @@ const StudentEdit = () => {
                         <Input placeholder="请输入邮箱" showCount maxLength={30} allowClear />
                     </Form.Item>
                     <Form.Item label="指导老师" name="teacher_id">
-                        <Select placeholder="请选择指导老师" allowClear>
+                        <Select placeholder="请选择指导老师" allowClear
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input: any, option: any) =>
+                                option.children.indexOf(input) >= 0
+                            }>
                             {
                                 teacherList.map((item, index) => (
                                     <Select.Option key={index} value={item.id}>
@@ -187,7 +197,12 @@ const StudentEdit = () => {
                                 },
                             }),
                         ]}>
-                        <Select placeholder="请选择送审老师" allowClear>
+                        <Select placeholder="请选择送审老师" allowClear
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input: any, option: any) =>
+                                option.children.indexOf(input) >= 0
+                            }>
                             {
                                 teacherList.map((item, index) => (
                                     <Select.Option key={index} value={item.id}>
@@ -202,6 +217,7 @@ const StudentEdit = () => {
                             mode="multiple"
                             allowClear
                             placeholder="请选择答辩教师"
+                            showSearch
                             optionFilterProp="children"
                             filterOption={(input: any, option: any) =>
                                 option.children.indexOf(input) >= 0

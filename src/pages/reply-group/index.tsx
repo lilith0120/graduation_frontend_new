@@ -10,24 +10,32 @@ const ReplyGroup = () => {
     const [teacherList, setTeacherList] = useState<any[]>([]);
     const [studentList, setStudentList] = useState<any[]>([]);
     const [selectTeachers, setSelectTeachers] = useState<any[]>([]);
-    const [selectStudents, setSelectStudents] = useState<any[]>([]);
     const [isReview, setIsReview] = useState(false);
+    const [selectReview, setSelectReview] = useState(false);
 
     useEffect(() => {
         getTeacherList();
     }, []);
 
     useEffect(() => {
-        getStudentList();
+        if (selectTeachers.length > 0) {
+            getStudentList();
+        }
+        fetchDataByTeacher();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isReview]);
+    }, [selectReview, selectTeachers]);
 
     useEffect(() => {
         if (selectTeachers.length === 1) {
             setIsReview(true);
         } else {
             setIsReview(false);
+            form.setFieldsValue({
+                is_review: false,
+            });
+            setSelectReview(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectTeachers]);
 
     const getTeacherList = async () => {
@@ -37,7 +45,10 @@ const ReplyGroup = () => {
     };
 
     const getStudentList = async () => {
-        const res: any = await axios.get(`/api/util/get_student/${isReview}`);
+        const res: any = await axios.post(`/api/util/get_studentlist`, {
+            teacher_id: selectTeachers[0],
+            is_review: selectReview,
+        });
         const { students } = res;
         setStudentList(students);
     };
@@ -45,6 +56,7 @@ const ReplyGroup = () => {
     const fetchDataByTeacher = async () => {
         const res: any = await axios.post('/api/util/get_student', {
             selectTeachers,
+            is_review: selectReview,
         });
         const { students } = res;
         form.setFieldsValue({
@@ -52,30 +64,12 @@ const ReplyGroup = () => {
         });
     };
 
-    const fetchDataByStudent = async () => {
-        const res: any = await axios.post('/api/util/get_teacher', {
-            selectStudents,
-        });
-        const { teachers } = res;
-        form.setFieldsValue({
-            teacherIds: teachers,
-        });
-    };
-
     const handleChangeTeacher = (value: any) => {
         setSelectTeachers(value);
     };
 
-    const handleChangeStudent = (value: any) => {
-        setSelectStudents(value);
-    };
-
-    const handleBlurSelect = async (type: any) => {
-        if (type === "student") {
-            await fetchDataByStudent();
-        } else if (type === "teacher") {
-            await fetchDataByTeacher();
-        }
+    const handleChangeReview = async (value: any) => {
+        setSelectReview(value);
     };
 
     const handleClickSave = async (value: any) => {
@@ -92,6 +86,7 @@ const ReplyGroup = () => {
             return;
         }
         message.success("保存成功");
+        form.resetFields();
     };
 
     return (
@@ -100,7 +95,6 @@ const ReplyGroup = () => {
             <div className={style.form}>
                 <Form
                     labelWrap
-                    labelCol={{ flex: '81px' }}
                     form={form}
                     onFinish={handleClickSave}
                 >
@@ -112,7 +106,6 @@ const ReplyGroup = () => {
                         <Select
                             mode="multiple"
                             onChange={handleChangeTeacher}
-                            onBlur={() => handleBlurSelect("teacher")}
                             allowClear
                             placeholder="请选择答辩教师"
                             optionFilterProp="children"
@@ -129,12 +122,10 @@ const ReplyGroup = () => {
                             }
                         </Select>
                     </Form.Item>
-                    {
-                        isReview &&
-                        <Form.Item name="is_review" label="是否作为送审教师" valuePropName="checked">
-                            <Switch />
-                        </Form.Item>
-                    }
+                    <Form.Item name="is_review" label="是否作为送审教师" valuePropName="checked"
+                        tooltip="只有一位答辩老师才能选择" labelCol={{ flex: '100px' }}>
+                        <Switch disabled={!isReview} onChange={handleChangeReview} />
+                    </Form.Item>
                     <Form.Item
                         label="答辩学生"
                         name="studentIds"
@@ -142,8 +133,6 @@ const ReplyGroup = () => {
                     >
                         <Select
                             mode="multiple"
-                            onChange={handleChangeStudent}
-                            onBlur={() => handleBlurSelect("student")}
                             allowClear
                             placeholder="请选择答辩学生"
                             optionFilterProp="children"
@@ -152,8 +141,8 @@ const ReplyGroup = () => {
                             }
                         >
                             {
-                                studentList.map((item: any) => (
-                                    <Select.Option key={item.id}>
+                                studentList.map((item: any, index: any) => (
+                                    <Select.Option key={index} value={item.id}>
                                         {item.name}
                                     </Select.Option>
                                 ))

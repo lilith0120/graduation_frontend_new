@@ -43,7 +43,7 @@ const TeacherDetail = () => {
     };
 
     const handleClickEdit = () => {
-        navigate(`/teacher-list/edit/${teacherId}`);
+        navigate(`/teacher-list/edit/${teacherId}`, { replace: true });
     };
 
     return (
