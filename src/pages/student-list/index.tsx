@@ -48,6 +48,10 @@ const StudentList = () => {
     }, []);
 
     useEffect(() => {
+        setCurrentPage(1);
+    }, [filterMsg]);
+
+    useEffect(() => {
         if (role === roles.ADMIN) {
             fetchDataByAdmin();
         } else if (role === roles.TEACHER) {
@@ -58,7 +62,7 @@ const StudentList = () => {
         sessionStorage.setItem("currentPage", currentPage.toString());
         sessionStorage.setItem("filterMsg", JSON.stringify(filterMsg));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageSize, currentPage, filterMsg, role]);
+    }, [pageSize, currentPage, role]);
 
     useEffect(() => {
         if (isChange) {

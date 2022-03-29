@@ -39,13 +39,17 @@ const TeacherList = () => {
     }, []);
 
     useEffect(() => {
+        setCurrentPage(1);
+    }, [filterMsg]);
+
+    useEffect(() => {
         fetchData();
 
         sessionStorage.setItem("pageSize", pageSize.toString());
         sessionStorage.setItem("currentPage", currentPage.toString());
         sessionStorage.setItem("filterMsg", JSON.stringify(filterMsg));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageSize, currentPage, filterMsg]);
+    }, [pageSize, currentPage]);
 
     const fetchData = async () => {
         const { user_id, name, sex } = filterMsg;
