@@ -62,7 +62,7 @@ const StudentList = () => {
         sessionStorage.setItem("currentPage", currentPage.toString());
         sessionStorage.setItem("filterMsg", JSON.stringify(filterMsg));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageSize, currentPage, role]);
+    }, [pageSize, currentPage, filterMsg, role]);
 
     useEffect(() => {
         if (isChange) {

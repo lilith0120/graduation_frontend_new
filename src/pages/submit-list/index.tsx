@@ -44,7 +44,7 @@ const SubmitList = () => {
         sessionStorage.setItem("currentPage", currentPage.toString());
         sessionStorage.setItem("filterMsg", JSON.stringify(filterMsg));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageSize, currentPage]);
+    }, [pageSize, currentPage, filterMsg]);
 
     const fetchData = async () => {
         const { file_name, process_id, file_status } = filterMsg;

@@ -49,7 +49,7 @@ const TeacherList = () => {
         sessionStorage.setItem("currentPage", currentPage.toString());
         sessionStorage.setItem("filterMsg", JSON.stringify(filterMsg));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageSize, currentPage]);
+    }, [pageSize, currentPage, filterMsg]);
 
     const fetchData = async () => {
         const { user_id, name, sex } = filterMsg;
