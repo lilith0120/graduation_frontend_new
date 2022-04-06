@@ -1,4 +1,7 @@
-import { Table, Space, Button, message, Upload } from 'antd';
+import { Table, Space, Button, message, Upload, Modal } from 'antd';
+import {
+    ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FileSaver from 'file-saver';
@@ -174,9 +177,15 @@ const StudentList = () => {
             return;
         }
 
-        await handleDeleteData();
-        setSelectedList([]);
-        setSelectedRow([]);
+        Modal.confirm({
+            title: '是否确定删除选中对象?',
+            icon: <ExclamationCircleOutlined />,
+            async onOk() {
+                await handleDeleteData();
+                setSelectedList([]);
+                setSelectedRow([]);
+            },
+        });
     };
 
     const handleChangeSelect = (selected: any, selectedRow: any) => {
