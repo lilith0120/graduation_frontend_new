@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Space, Button, Descriptions, Tag, Modal, Input, notification, message } from 'antd';
 import FileSaver from "file-saver";
+import FileViewer from "react-file-viewer";
 import style from '../../../assets/styles/review-list/detail.module.css';
 import { getType } from "../../../config/review-status";
 import axios from '../../../http';
@@ -47,6 +48,7 @@ const ReviewDetail = () => {
     const fetchData = async () => {
         const res: any = await axios.get(`/api/teacher/review/${reviewId}`);
         const { file } = res;
+        file.file_format = file.file_url.substr(file.file_url.lastIndexOf(".") + 1);
         setReviewDetail(file);
 
         if (file.is_review) {
@@ -239,9 +241,9 @@ const ReviewDetail = () => {
                         <div className={style.file_viewer}>
                             {
                                 reviewDetail.file_url !== "" &&
-                                <iframe className={style.file}
-                                    title="预览文档"
-                                    src={`https://view.xdocin.com/view?src=${reviewDetail.file_url}`} />
+                                <FileViewer className={style.file}
+                                    fileType={reviewDetail.file_format}
+                                    filePath={reviewDetail.file_url} />
                             }
                         </div>
                 }

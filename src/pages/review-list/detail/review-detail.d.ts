@@ -1,4 +1,5 @@
 interface ReviewDetailData {
+    file_format?: string;
     id: number,
     file_name: string,
     file_url: string,
@@ -15,3 +16,5 @@ interface ReviewDetailData {
     review_at?: string,
     is_review: boolean,
 };
+
+declare module 'react-file-viewer'
