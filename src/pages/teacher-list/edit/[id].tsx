@@ -53,7 +53,7 @@ const TeacherEdit = () => {
             title: '是否放弃本次编辑?',
             icon: <ExclamationCircleOutlined />,
             onOk() {
-                navigate(-1);
+                navigate(`/teacher-list/detail/${teacherId}`, { replace: true });
             },
         });
     };

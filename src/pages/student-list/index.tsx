@@ -169,7 +169,7 @@ const StudentList = () => {
 
     const handleClickDelect = async () => {
         if (!selectedList.length) {
-            message.warning("未选择导出对象");
+            message.warning("未选择删除对象");
 
             return;
         }

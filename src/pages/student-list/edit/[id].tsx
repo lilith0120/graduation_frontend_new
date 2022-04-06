@@ -82,7 +82,7 @@ const StudentEdit = () => {
             title: '是否放弃本次编辑?',
             icon: <ExclamationCircleOutlined />,
             onOk() {
-                navigate(-1);
+                navigate(`/student-list/detail/${studentId}`, { replace: true });
             },
         });
     };
