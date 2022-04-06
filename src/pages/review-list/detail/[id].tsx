@@ -226,6 +226,7 @@ const ReviewDetail = () => {
                         </Descriptions.Item>
                         <Descriptions.Item label="提交时间" span={2}>{reviewDetail.createdAt}</Descriptions.Item>
                         {
+                            !reviewDetail.is_review &&
                             (reviewDetail.status === 2 ||
                                 reviewDetail.status === 3) &&
                             <>
